@@ -78,6 +78,7 @@ namespace Atx.LibVLC
         internal VlcEngineHandle engine;
         
         private VlcLog vlclog;
+        private VlcInput vlcinput;
         private string version;
         
         public VlcEngine ()
@@ -86,6 +87,8 @@ namespace Atx.LibVLC
             string[] argv = new string[] { "-l", "dummy" };
             engine = libvlc_new (argv.Length, argv, ex);
             handle_exception(ex);
+
+            vlcinput = new VlcInput(this);
         }
 
         private void handle_exception(VlcException ex)
@@ -95,9 +98,6 @@ namespace Atx.LibVLC
                 VlcEngineException vlcex;
                 switch(ex.Message)
                 {
-                    case "No active input":
-                        vlcex = new VlcNoActiveInputException(ex.Message) as VlcEngineException;
-                        break;
                     default:
                         vlcex = new VlcEngineException(ex.Message);
                         Console.WriteLine(vlcex);
@@ -153,99 +153,19 @@ namespace Atx.LibVLC
 
         public Int64 Time
         {
-            get
-            {
-                try
-                {
-                    VlcException ex = new VlcException();
-                    IntPtr input = libvlc_playlist_get_input(engine, ex);
-                    handle_exception(ex);
-    
-                    Int64 ret = 0;
-                    if(input != IntPtr.Zero)
-                    {
-                        ret = libvlc_input_get_time(input, ex);
-                        handle_exception(ex);
-                        libvlc_input_free(input);
-                    }
-                    return ret;
-                }
-                catch(VlcNoActiveInputException)
-                {
-                    return 0;
-                }
-            }
-
-            set
-            {
-                VlcException ex = new VlcException();
-                IntPtr input = libvlc_playlist_get_input(engine, ex);
-                handle_exception(ex);
-                libvlc_input_set_time(input, value, ex);
-                handle_exception(ex);
-                libvlc_input_free(input);
-            }
+            get { return vlcinput.Time; }
+            set { vlcinput.Time = value; }
         }
 
         public float Position
         {
-            get
-            {
-                try
-                {
-                    VlcException ex = new VlcException();
-                    IntPtr input = libvlc_playlist_get_input(engine, ex);
-                    handle_exception(ex);
-
-                    float ret = 0;
-                    if (input != IntPtr.Zero)
-                    {
-                        ret = libvlc_input_get_position(input, ex);
-                        handle_exception(ex);
-                        libvlc_input_free(input);
-                    }
-                    return ret;
-                }
-                catch (VlcNoActiveInputException)
-                {
-                    return 0;
-                }
-            }
-            set
-            {
-                VlcException ex = new VlcException();
-                IntPtr input = libvlc_playlist_get_input(engine, ex);
-                handle_exception(ex);
-                libvlc_input_set_position(input, value, ex);
-                handle_exception(ex);
-                libvlc_input_free(input);
-            }
+            get { return vlcinput.Position; }
+            set { vlcinput.Position = value; }
         }
 
         public Int64 Length
         {
-            get
-            {
-                try
-                {
-                    VlcException ex = new VlcException();
-                    IntPtr input = libvlc_playlist_get_input(engine, ex);
-                    handle_exception(ex);
-                   
-                    Int64 ret = 0; 
-                    if(input != IntPtr.Zero)
-                    {
-                        ret = libvlc_input_get_length(input, ex);
-                        handle_exception(ex);
-                        libvlc_input_free(input);
-                    }
-                    return ret;
-                }
-                catch(VlcNoActiveInputException)
-                {
-                    return 0;
-                }
-            }
+            get { return vlcinput.Length; }
         }
 
         public bool IsPlaying
@@ -362,27 +282,6 @@ namespace Atx.LibVLC
 
         [DllImport ("libvlc")]
         private static extern int libvlc_playlist_delete_item(VlcEngineHandle engine, int item, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern IntPtr libvlc_playlist_get_input(VlcEngineHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_input_free(IntPtr input);
-
-        [DllImport ("libvlc")]
-        private static extern Int64 libvlc_input_get_length(IntPtr input, VlcExceptionHandle exception);
-
-        [DllImport ("libvlc")]
-        private static extern Int64 libvlc_input_get_time(IntPtr input, VlcExceptionHandle exception);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_input_set_time(IntPtr input, Int64 time, VlcExceptionHandle exception);
-
-        [DllImport ("libvlc")]
-        private static extern float libvlc_input_get_position(IntPtr input, VlcExceptionHandle exception);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_input_set_position(IntPtr input, float pos, VlcExceptionHandle exception);
 
         [DllImport ("libvlc")]
         private static extern int libvlc_audio_get_volume(VlcEngineHandle engine, VlcExceptionHandle exception);
