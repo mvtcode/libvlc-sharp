@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 9.00
 # Visual Studio 2005
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libvlc-sharp", "libvlc-sharp.csproj", "{DE57BEF3-3F2D-4BAF-824D-E3D7BC643F63}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "libvlc-sharp-test", "libvlc-sharp-test.csproj", "{6D035513-DFC9-445A-A39A-2B63C91D8471}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -13,6 +15,10 @@ Global
 		{DE57BEF3-3F2D-4BAF-824D-E3D7BC643F63}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DE57BEF3-3F2D-4BAF-824D-E3D7BC643F63}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DE57BEF3-3F2D-4BAF-824D-E3D7BC643F63}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D035513-DFC9-445A-A39A-2B63C91D8471}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D035513-DFC9-445A-A39A-2B63C91D8471}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D035513-DFC9-445A-A39A-2B63C91D8471}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D035513-DFC9-445A-A39A-2B63C91D8471}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
