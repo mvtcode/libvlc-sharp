@@ -47,8 +47,7 @@ public class Foo
 
             e.Log.Clear();
 
-            Console.WriteLine("{0} / {1}", e.Time / 1000, e.Length / 1000);
-            Console.WriteLine("-------------------");
+            Console.Write("{0} / {1}\r", e.Time / 1000, e.Length / 1000);
             System.Threading.Thread.Sleep(5000);
         }
         Console.ReadLine();

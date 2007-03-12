@@ -34,6 +34,8 @@ namespace Atx.LibVLC
 {
     public class VlcInputHandle : SafeHandle
     {
+        private bool disposed = false;
+
         public VlcInputHandle() : base(IntPtr.Zero, true)
         { }
 
@@ -44,8 +46,9 @@ namespace Atx.LibVLC
 
         protected override bool ReleaseHandle()
         {
-            if (!IsInvalid)
+            if (!IsInvalid && !disposed)
             {
+                disposed = true;
                 libvlc_input_free(this);
             }
             return true;
@@ -53,7 +56,10 @@ namespace Atx.LibVLC
 
         protected override void Dispose(bool disposing)
         {
-            ReleaseHandle();
+            if (!disposed)
+            {
+                ReleaseHandle();
+            }
             base.Dispose(disposing);
         }
 
