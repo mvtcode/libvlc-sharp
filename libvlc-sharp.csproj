@@ -30,6 +30,7 @@
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="VlcEngine.cs" />
     <Compile Include="VlcException.cs" />
+    <Compile Include="VlcInput.cs" />
     <Compile Include="VlcLog.cs" />
     <Compile Include="VlcLogEnum.cs" />
     <Compile Include="VlcLogMessage.cs" />
