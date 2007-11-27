@@ -1,4 +1,5 @@
-﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -6,20 +7,33 @@
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>libvlc-sharp</AssemblyName>
-    <RootNamespace>LibVLC</RootNamespace>
+    <RootNamespace>libvlc</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>.\bin\Debug\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputType>Library</OutputType>
+    <AssemblyName>libvlc-sharp</AssemblyName>
+    <RootNamespace>libvlc</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>.\bin\Release\</OutputPath>
+    <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
+    <OutputType>Library</OutputType>
+    <AssemblyName>libvlc-sharp</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
+    <RootNamespace>libvlc</RootNamespace>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -28,12 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="VlcEngine.cs" />
+    <Compile Include="VlcConfig.cs" />
+    <Compile Include="VlcInstance.cs" />
     <Compile Include="VlcException.cs" />
     <Compile Include="VlcInput.cs" />
     <Compile Include="VlcLog.cs" />
     <Compile Include="VlcLogEnum.cs" />
     <Compile Include="VlcLogMessage.cs" />
+    <Compile Include="VlcObject.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>

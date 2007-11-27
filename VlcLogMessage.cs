@@ -1,9 +1,11 @@
 /* vi:set ts=4 et sts=4 sw=4: */
 /***************************************************************************
  *  VlcLogMessage.cs
+ *  Original Filename: VlcLogMessage.cs
  *
  *  Copyright (C) 2007 Timothy J Fontaine <tjfontaine@gmail.com>
  *  Written by Timothy J Fontaine <tjfontaine@gmail.com>
+ *  Modified by Scott E Graves <scott.e.graves@gmail.com>
  ****************************************************************************/
 
 /*  THIS FILE IS LICENSED UNDER THE MIT LICENSE AS OUTLINED IMMEDIATELY BELOW: 
@@ -30,7 +32,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Atx.LibVLC
+namespace libvlc
 {
     public class VlcLogMessageHandle : SafeHandle
     {

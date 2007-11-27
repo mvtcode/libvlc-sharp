@@ -1,9 +1,11 @@
 /* vi:set ts=4 et sts=4 sw=4: */
 /***************************************************************************
  *  VlcException.cs
- *
+ *  Original Filename: VlcException.cs
+ *  
  *  Copyright (C) 2007 Timothy J Fontaine <tjfontaine@gmail.com>
  *  Written by Timothy J Fontaine <tjfontaine@gmail.com>
+ *  Modified by Scott E Graves <scott.e.graves@gmail.com>
  ****************************************************************************/
 
 /*  THIS FILE IS LICENSED UNDER THE MIT LICENSE AS OUTLINED IMMEDIATELY BELOW: 
@@ -31,25 +33,30 @@ using System;
 using System.Runtime.InteropServices;
 using System.IO;
 
-namespace Atx.LibVLC
+namespace libvlc
 {
     public class VlcExceptionHandle : SafeHandle
     {
-        public VlcExceptionHandle() : base(IntPtr.Zero, true)
+        public VlcExceptionHandle()
+            : base(IntPtr.Zero, true)
         {
-            handle = exception_new();
+            handle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(IntPtr)));
+            libvlc_exception_init(this);
         }
-        
+
+
         protected override bool ReleaseHandle()
         {
-            if(!IsInvalid)
+            if (!IsInvalid)
             {
-                Marshal.FreeCoTaskMem(handle);
+                libvlc_exception_clear(this);
+                Marshal.FreeHGlobal(handle);
                 handle = IntPtr.Zero;
             }
 
             return true;
         }
+
 
         protected override void Dispose(bool disposing)
         {
@@ -57,41 +64,66 @@ namespace Atx.LibVLC
             base.Dispose(disposing);
         }
 
+
         public override bool IsInvalid
         {
             get { return handle == IntPtr.Zero; }
         }
 
-        private IntPtr exception_new()
+        public void Clear()
         {
-            IntPtr exception = IntPtr.Zero;
-            int size = Marshal.SizeOf(typeof(int)) + Marshal.SizeOf(typeof(IntPtr));
-            exception = Marshal.AllocCoTaskMem(size);
-            return exception;
+            libvlc_exception_clear(this);
         }
+
+        #region libvlc api
+        [DllImport("libvlc")]
+        private static extern void libvlc_exception_init(VlcExceptionHandle p_exception);
+
+        [DllImport("libvlc")]
+        private static extern void libvlc_exception_clear(VlcExceptionHandle p_exception);
+        #endregion
     }
 
-    public class VlcException
+    public class VlcException : IDisposable
     {
-        private bool disposed = false;
-        private VlcExceptionHandle handle;
+        private bool _disposed = false;
+        private VlcExceptionHandle _excp = new VlcExceptionHandle();
 
         public VlcException() 
         {
-            handle = new VlcExceptionHandle();
-            libvlc_exception_init(handle);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                _disposed = true;
+                if (!_excp.IsInvalid)
+                    _excp.Dispose();
+            }
+        }
+
+        ~VlcException()
+        {
+            Dispose(false);
         }
 
         public void Clear()
         {
-            libvlc_exception_clear(handle);
+            _excp.Clear();
         }
 
         public string Message
         {
             get
             {
-                IntPtr imessage = libvlc_exception_get_message(handle);
+                IntPtr imessage = libvlc_exception_get_message(_excp);
                 string message = Marshal.PtrToStringAnsi(imessage);
                 return message;
             }
@@ -101,26 +133,17 @@ namespace Atx.LibVLC
         {
             get
             {
-                if(!disposed)
-                    return libvlc_exception_raised(this.handle) == 1 ? true : false;
-                else
-                    return false;
+                return libvlc_exception_raised(_excp) == 1 ? true : false;
             }
         }
 
         public static implicit operator VlcExceptionHandle (VlcException ex)
         {
-            return ex.handle;
+            return ex._excp;
         }
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_exception_init(VlcExceptionHandle ex);
         
         [DllImport ("libvlc")]
         private static extern int libvlc_exception_raised(VlcExceptionHandle ex);
-        
-        [DllImport ("libvlc")]
-        private static extern void libvlc_exception_clear(VlcExceptionHandle ex);
 
         [DllImport ("libvlc")]
         private static extern IntPtr libvlc_exception_get_message(VlcExceptionHandle ex);

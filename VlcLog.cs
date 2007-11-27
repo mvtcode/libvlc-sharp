@@ -1,9 +1,11 @@
 /* vi:set ts=4 et sts=4 sw=4: */
 /***************************************************************************
  *  VlcLog.cs
- *
+ *  Original Filename: VlcLog.cs
+ * 
  *  Copyright (C) 2007 Timothy J Fontaine <tjfontaine@gmail.com>
  *  Written by Timothy J Fontaine <tjfontaine@gmail.com>
+ *  Modified by Scott E Graves <scott.e.graves@gmail.com>
  ****************************************************************************/
 
 /*  THIS FILE IS LICENSED UNDER THE MIT LICENSE AS OUTLINED IMMEDIATELY BELOW: 
@@ -31,7 +33,7 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-namespace Atx.LibVLC
+namespace libvlc
 {
     public class VlcLogException : Exception
     {
@@ -62,7 +64,6 @@ namespace Atx.LibVLC
                 else
                 {
                     Console.WriteLine("Failed to Release VlcLogHandle: " + ex.Message);
-                    ex.Clear();
                     return false;
                 }
             }
@@ -81,25 +82,23 @@ namespace Atx.LibVLC
 
     public class VlcLog : ICollection
     {
-        private VlcLogHandle log;
-        private VlcEngineHandle engine;
+        private VlcInstanceHandle _instance;
+        private VlcLogHandle _log;
+        private VlcException _excp = new VlcException();
 
-        public VlcLog(VlcEngine engine)
+        internal VlcLog(VlcInstanceHandle instance)
         {
-            this.engine = engine.engine;
-            
-            VlcException ex = new VlcException();
-            log = libvlc_log_open(this.engine, ex);
-            handle_exception(ex);
+            _instance = instance;
+            _log = libvlc_log_open(_instance, _excp);
+            handle_exception();
         }
 
-        private void handle_exception(VlcException ex)
+        private void handle_exception()
         {
-            if(ex.Raised)
+            if (_excp.Raised)
             {
-                VlcLogException vlex = new VlcLogException(ex.Message);
+                VlcLogException vlex = new VlcLogException(_excp.Message);
                 Console.WriteLine(vlex);
-                ex.Clear();
                 throw vlex;
             }
         }
@@ -108,18 +107,15 @@ namespace Atx.LibVLC
         {
             get
             {
-                uint ret = 0;
-                VlcException ex = new VlcException();
-                ret = libvlc_get_log_verbosity(engine, ex);
-                handle_exception(ex);
+                uint ret = libvlc_get_log_verbosity(_instance, _excp);
+                handle_exception();
                 return ret;
             }
 
             set
             {
-                VlcException ex = new VlcException();
-                libvlc_set_log_verbosity(engine, value, ex);
-                handle_exception(ex);
+                libvlc_set_log_verbosity(_instance, value, _excp);
+                handle_exception();
             }
         }
 
@@ -131,10 +127,8 @@ namespace Atx.LibVLC
         {
             get
             {
-                uint ret = 0;
-                VlcException ex = new VlcException();
-                ret = libvlc_log_count(log, ex);
-                handle_exception(ex);
+                uint ret = libvlc_log_count(_log, _excp);
+                handle_exception();
                 return (int)ret;
             }
         }
@@ -151,27 +145,26 @@ namespace Atx.LibVLC
 
         public virtual IEnumerator GetEnumerator()
         {
-            return new VlcLogEnum(log);
+            return new VlcLogEnum(_log);
         }
 
         public void Clear()
         {
             if(Count > 0)
             {
-                VlcException ex = new VlcException();
-                libvlc_log_clear(log, ex);
-                handle_exception(ex);
+                libvlc_log_clear(_log, _excp);
+                handle_exception();
             }
         }
 
         [DllImport("libvlc")]
-        private static extern VlcLogHandle libvlc_log_open(VlcEngineHandle engine, VlcExceptionHandle ex);
+        private static extern VlcLogHandle libvlc_log_open(VlcInstanceHandle engine, VlcExceptionHandle ex);
 
         [DllImport("libvlc")]
-        private static extern uint libvlc_get_log_verbosity(VlcEngineHandle engine, VlcExceptionHandle ex);
+        private static extern uint libvlc_get_log_verbosity(VlcInstanceHandle engine, VlcExceptionHandle ex);
 
         [DllImport("libvlc")]
-        private static extern void libvlc_set_log_verbosity(VlcEngineHandle engine, uint value, VlcExceptionHandle ex);
+        private static extern void libvlc_set_log_verbosity(VlcInstanceHandle engine, uint value, VlcExceptionHandle ex);
         
         [DllImport("libvlc")]
         private static extern uint libvlc_log_count(VlcLogHandle log, VlcExceptionHandle ex);
