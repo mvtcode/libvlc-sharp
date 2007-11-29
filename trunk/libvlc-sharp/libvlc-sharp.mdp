@@ -1,0 +1,32 @@
+<Project name="libvlc-sharp" fileversion="2.0" DefaultNamespace="libvlc" language="C#" clr-version="Net_2_0" ctype="DotNetProject">
+  <Configurations active="Release|Any CPU">
+    <Configuration name="Debug|Any CPU" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Debug/" assembly="libvlc-sharp" />
+      <Build debugmode="True" target="Library" />
+      <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" clr-version="Net_2_0" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="False" unsafecodeallowed="False" generateoverflowchecks="True" definesymbols="DEBUG;TRACE" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release|Any CPU" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Release/" assembly="libvlc-sharp" />
+      <Build debugmode="True" target="Library" />
+      <Execution runwithwarnings="True" consolepause="True" runtime="MsNet" clr-version="Net_2_0" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="True" definesymbols="TRACE" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <Contents>
+    <File name="AssemblyInfo.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcConfig.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcInstance.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcException.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcInput.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcLog.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcLogEnum.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcLogMessage.cs" subtype="Code" buildaction="Compile" />
+    <File name="VlcObject.cs" subtype="Code" buildaction="Compile" />
+  </Contents>
+  <References>
+    <ProjectReference type="Gac" localcopy="True" refto="System, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference type="Gac" localcopy="True" refto="System.Data, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference type="Gac" localcopy="True" refto="System.Xml, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  </References>
+</Project>

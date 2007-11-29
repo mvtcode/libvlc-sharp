@@ -1,0 +1,24 @@
+<Combine name="libvlc-sharp" fileversion="2.0">
+  <Configurations active="Release|Any CPU">
+    <Configuration name="Debug|Any CPU" ctype="CombineConfiguration">
+      <Entry build="True" name="libvlc-sharp-test" configuration="Debug|Any CPU" />
+      <Entry build="True" name="libvlc-sharp-forms-test" configuration="Debug|Any CPU" />
+      <Entry build="True" name="libvlc-sharp" configuration="Debug|Any CPU" />
+    </Configuration>
+    <Configuration name="Release|Any CPU" ctype="CombineConfiguration">
+      <Entry build="True" name="libvlc-sharp-test" configuration="Release|Any CPU" />
+      <Entry build="True" name="libvlc-sharp-forms-test" configuration="Release|Any CPU" />
+      <Entry build="True" name="libvlc-sharp" configuration="Release|Any CPU" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="libvlc-sharp-forms-test" single="True">
+    <Execute type="None" entry="libvlc-sharp-test" />
+    <Execute type="None" entry="libvlc-sharp-forms-test" />
+    <Execute type="None" entry="libvlc-sharp" />
+  </StartMode>
+  <Entries>
+    <Entry filename="libvlc-sharp-test/libvlc-sharp-test.mdp" />
+    <Entry filename="libvlc-sharp-forms-test/libvlc-sharp-forms-test.mdp" />
+    <Entry filename="libvlc-sharp/libvlc-sharp.mdp" />
+  </Entries>
+</Combine>
