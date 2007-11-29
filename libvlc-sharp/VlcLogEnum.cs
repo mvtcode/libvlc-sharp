@@ -37,6 +37,7 @@ namespace Atx.LibVLC
 {
     public class VlcLogEnumHandle : SafeHandle
     {
+        
         public VlcLogEnumHandle() : base(IntPtr.Zero, true)
         { }
 
@@ -47,6 +48,7 @@ namespace Atx.LibVLC
 
         protected override bool ReleaseHandle()
         {
+            bool ret = true;
             if(!IsInvalid)
             {
                 VlcException _excp = new VlcException();
@@ -54,17 +56,15 @@ namespace Atx.LibVLC
                 if(!_excp.Raised)
                 {
                     handle = IntPtr.Zero;
-                    return true;
                 }
                 else
                 {
                     Console.WriteLine("Failed to Release VlcLogEnum Handle: " + _excp.Message);
-                    _excp.Clear();
-                    return false;
+                    ret = false;
                 }
             }
 
-            return true;
+            return ret;
         }
 
         protected override void Dispose(bool disposing)
@@ -105,7 +105,7 @@ namespace Atx.LibVLC
             }
         }
 
-        private bool has_next(VlcException _excp)
+        private bool has_next()
         {
             int ret = libvlc_log_iterator_has_next(iter, _excp);
             VlcException.HandleVlcException(ref _excp);
@@ -114,29 +114,24 @@ namespace Atx.LibVLC
 
         public virtual bool MoveNext()
         {
-            VlcException _excp = new VlcException();
-            if(has_next(_excp))
+            if(has_next())
             {
-                int size = Marshal.SizeOf(typeof(VlcLogMessagePtr));
+                int size = Marshal.SizeOf(typeof(libvlc_log_message_t));
 
                 //libvlc wants us to allocate the buffer and set the size
                 //so it knows that the structs match in layout and size on
                 //runtime arch
-                VlcLogMessagePtr tmp = new VlcLogMessagePtr();
+                libvlc_log_message_t tmp = new libvlc_log_message_t();
                 tmp.message_size = (uint)size;
 
                 //take our existing structure and put it in the unmanaged memory
                 //also let it deallocate the original
-                VlcLogMessageHandle ptr = new VlcLogMessageHandle();
-                Marshal.StructureToPtr(tmp, ptr, true);
+                VlcLogMessageHandle handle = new VlcLogMessageHandle();
+                Marshal.StructureToPtr(tmp, handle, true);
 
-                last_ptr = libvlc_log_iterator_next(iter, ptr, _excp);
-
-                if(!_excp.Raised)
-                    return true;
-            
+                last_ptr = libvlc_log_iterator_next(iter, handle, _excp);
                 VlcException.HandleVlcException(ref _excp);
-                return false;
+                return true;
             }
             return false;
         }

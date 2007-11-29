@@ -13,16 +13,16 @@ namespace test_project
     public class LogForm : Form
     {
         private ListBox _lb = new ListBox();
-        private VlcLog _log;
+        private VlcInstance _inst;
         private EventWaitHandle _stop = new EventWaitHandle(false, EventResetMode.ManualReset);
         private Thread _th;
         private delegate void DumpMessagesDelegate();
 
-        public LogForm(VlcLog log)
+        public LogForm(VlcInstance inst)
         {
             _lb.IntegralHeight = false;
             _lb.HorizontalScrollbar = true;
-            _log = log;
+            _inst = inst;
             _th = new Thread(new ThreadStart(this.ThreadMethod));
 
             this.Load += new EventHandler(this.OnLoad);
@@ -37,12 +37,11 @@ namespace test_project
 
         private void DumpMessages()
         {
-            foreach (VlcLogMessage vlm in _log)
+            foreach (VlcLogMessage vlm in _inst.Log)
             {
                 _lb.Items.Add(String.Format("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message));
                 _lb.SetSelected(_lb.Items.Count - 1, true);
             }
-            _log.Clear();
         }
 
         private void ThreadMethod()
@@ -120,7 +119,7 @@ namespace test_project
             _v.PlaylistAdd("/data/media/videos/300.avi");
             _v.Play();
 
-            _logForm = new LogForm(_v.Log);
+            _logForm = new LogForm(_v);
             _logForm.Show();
             _logForm.Top = this.Top;
             _logForm.Left = this.Right;
