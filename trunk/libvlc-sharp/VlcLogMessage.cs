@@ -38,7 +38,7 @@ namespace Atx.LibVLC
     {
         public VlcLogMessageHandle() : base(IntPtr.Zero, true)
         {
-            handle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VlcLogMessagePtr)));
+            handle = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(libvlc_log_message_t)));
         }
 
         public override bool IsInvalid
@@ -50,8 +50,8 @@ namespace Atx.LibVLC
         {
             if(!IsInvalid)
             {
-                //Marshal.FreeHGlobal(handle);
-                //handle = IntPtr.Zero;
+                Marshal.FreeCoTaskMem(handle);
+                handle = IntPtr.Zero;
                 return true;
             }
             return false;
@@ -71,9 +71,7 @@ namespace Atx.LibVLC
 
     public class VlcLogMessage
     {
-        private VlcLogMessagePtr ptr;
-        private VlcLogMessageHandle rptr;
-
+        private libvlc_log_message_t _msg;
         private string type;
         private string name;
         private string header;
@@ -81,8 +79,7 @@ namespace Atx.LibVLC
 
         public VlcLogMessage(VlcLogMessageHandle handle)
         {
-            rptr = handle;
-            ptr = (VlcLogMessagePtr)Marshal.PtrToStructure(rptr, typeof(VlcLogMessagePtr));
+            _msg = (libvlc_log_message_t)Marshal.PtrToStructure(handle, typeof(libvlc_log_message_t));
         }
 
         public string Type
@@ -91,8 +88,8 @@ namespace Atx.LibVLC
             {
                 if(type == null)
                 {
-                    if(ptr.type != IntPtr.Zero)
-                        type = Marshal.PtrToStringAnsi(ptr.type);
+                    if(_msg.type != IntPtr.Zero)
+                        type = Marshal.PtrToStringAnsi(_msg.type);
                     else
                         type = string.Empty;
                 }
@@ -106,8 +103,8 @@ namespace Atx.LibVLC
             {
                 if(name == null)
                 {
-                    if(ptr.name != IntPtr.Zero)
-                        name = Marshal.PtrToStringAnsi(ptr.name);
+                    if(_msg.name != IntPtr.Zero)
+                        name = Marshal.PtrToStringAnsi(_msg.name);
                     else
                         name = string.Empty;
                 }
@@ -121,8 +118,8 @@ namespace Atx.LibVLC
             {
                 if(type == null)
                 {
-                    if(ptr.header != IntPtr.Zero)
-                        header = Marshal.PtrToStringAnsi(ptr.header);
+                    if(_msg.header != IntPtr.Zero)
+                        header = Marshal.PtrToStringAnsi(_msg.header);
                     else
                         header = string.Empty;
                 }
@@ -136,8 +133,8 @@ namespace Atx.LibVLC
             {
                 if(message == null)
                 {
-                    if(ptr.message != IntPtr.Zero)
-                        message = Marshal.PtrToStringAnsi(ptr.message);
+                    if(_msg.message != IntPtr.Zero)
+                        message = Marshal.PtrToStringAnsi(_msg.message);
                     else
                         message = string.Empty;
                 }
@@ -147,12 +144,13 @@ namespace Atx.LibVLC
 
         public int Severity
         {
-            get { return ptr.severity; }
+            get { return _msg.severity; }
         }
     }
 
+
     [StructLayout(LayoutKind.Sequential)]
-    public struct VlcLogMessagePtr
+    public struct libvlc_log_message_t
     {
         public uint message_size;
         public int severity;
