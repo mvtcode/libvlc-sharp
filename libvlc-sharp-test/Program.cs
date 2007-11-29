@@ -50,10 +50,9 @@ public class Foo
 
             e.Log.Clear();
 
+            System.Threading.Thread.Sleep(5000);
             if ( !e.Input.IsInvalid )
                 Console.Write("{0} / {1}\r", e.Input.Time / 1000, e.Input.Length / 1000);
-            
-            System.Threading.Thread.Sleep(5000);
         }
         Console.ReadLine();
     }
