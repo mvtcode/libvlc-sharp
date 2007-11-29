@@ -20,6 +20,8 @@ namespace test_project
 
         public LogForm(VlcLog log)
         {
+            _lb.IntegralHeight = false;
+            _lb.HorizontalScrollbar = true;
             _log = log;
             _th = new Thread(new ThreadStart(this.ThreadMethod));
 
@@ -38,6 +40,7 @@ namespace test_project
             foreach (VlcLogMessage vlm in _log)
             {
                 _lb.Items.Add(String.Format("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message));
+                _lb.SetSelected(_lb.Items.Count - 1, true);
             }
             _log.Clear();
         }
@@ -119,6 +122,8 @@ namespace test_project
 
             _logForm = new LogForm(_v.Log);
             _logForm.Show();
+            _logForm.Top = this.Top;
+            _logForm.Left = this.Right;
         }
 
         private void OnLayout(object sender, LayoutEventArgs e)
