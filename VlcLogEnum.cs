@@ -33,7 +33,7 @@ using System;
 using System.Collections;
 using System.Runtime.InteropServices;
 
-namespace libvlc
+namespace Atx.LibVLC
 {
     public class VlcLogEnumException : Exception
     {

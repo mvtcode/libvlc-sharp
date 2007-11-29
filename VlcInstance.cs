@@ -33,7 +33,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.IO;
 
-namespace libvlc
+namespace Atx.LibVLC
 {
     public class VlcInstanceException : Exception
     {

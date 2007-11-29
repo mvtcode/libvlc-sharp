@@ -11,7 +11,8 @@ public class Foo
             return;
         }
 
-        VlcEngine e = new VlcEngine();
+        VlcConfig cfg = new VlcConfig();
+        VlcInstance e = new VlcInstance(cfg);
         Console.WriteLine("Engine Init");
         Console.WriteLine("-------------------");
         foreach (VlcLogMessage vlm in e.Log)
@@ -19,7 +20,7 @@ public class Foo
 
         e.Log.Clear();
 
-        int id = e.Add(args[0], "");
+        int id = e.PlaylistAdd(args[0], "");
 
         Console.WriteLine("-------------------");
         Console.WriteLine("Added {0}", args[0]);
@@ -47,7 +48,7 @@ public class Foo
 
             e.Log.Clear();
 
-            Console.Write("{0} / {1}\r", e.Time / 1000, e.Length / 1000);
+            Console.Write("{0} / {1}\r", e.Input.Time / 1000, e.Input.Length / 1000);
             System.Threading.Thread.Sleep(5000);
         }
         Console.ReadLine();

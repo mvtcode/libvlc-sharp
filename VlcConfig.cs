@@ -32,7 +32,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-namespace libvlc
+namespace Atx.LibVLC
 {
     public class VlcConfig
 	{
