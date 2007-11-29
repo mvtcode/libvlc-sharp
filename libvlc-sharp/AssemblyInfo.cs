@@ -39,7 +39,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("LibVLC")]
-[assembly: AssemblyCopyright("Copyright © Scott E Graves 2007")]
+[assembly: AssemblyCopyright("Copyright © Scott E Graves and Timothy J Fontaine 2007")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
