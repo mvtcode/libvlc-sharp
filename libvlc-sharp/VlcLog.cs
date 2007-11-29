@@ -35,13 +35,10 @@ using System.Runtime.InteropServices;
 
 namespace Atx.LibVLC
 {
-    public class VlcLogException : Exception
-    {
-        public VlcLogException(string m) : base(m) {}
-    }
-
     public class VlcLogHandle : SafeHandle
     {
+        VlcException _excp = new VlcException();
+
         public VlcLogHandle() : base(IntPtr.Zero, true)
         {}
 
@@ -54,16 +51,14 @@ namespace Atx.LibVLC
         {
             if(!IsInvalid)
             {
-                VlcException ex = new VlcException();
-                libvlc_log_close(this, ex);
-                if(!ex.Raised)
+                libvlc_log_close(this, _excp);
+                if(!_excp.Raised)
                 {
                     handle = IntPtr.Zero;
-                    return true;
                 }
                 else
                 {
-                    Console.WriteLine("Failed to Release VlcLogHandle: " + ex.Message);
+                    Console.WriteLine("Failed to Release VlcLogHandle: " + _excp.Message);
                     return false;
                 }
             }
@@ -80,42 +75,54 @@ namespace Atx.LibVLC
         private static extern void libvlc_log_close(VlcLogHandle log, VlcExceptionHandle ex);
     }
 
-    public class VlcLog : ICollection
+    public class VlcLog : ICollection, IDisposable
     {
+        private bool _disposed = false;
+        private VlcException _excp = new VlcException();
         private VlcInstanceHandle _instance;
         private VlcLogHandle _log;
-        private VlcException _excp = new VlcException();
-
+        
         internal VlcLog(VlcInstanceHandle instance)
         {
             _instance = instance;
             _log = libvlc_log_open(_instance, _excp);
-            handle_exception();
+            VlcException.HandleVlcException(ref _excp);
         }
 
-        private void handle_exception()
+        ~VlcLog()
         {
-            if (_excp.Raised)
+            Dispose(false);
+        }
+
+        public virtual void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
             {
-                VlcLogException vlex = new VlcLogException(_excp.Message);
-                Console.WriteLine(vlex);
-                throw vlex;
+                _disposed = true;
+                if ( !_log.IsInvalid )
+                    _log.Dispose();
+                _excp.Dispose();
             }
         }
-
         public uint Verbosity
         {
             get
             {
                 uint ret = libvlc_get_log_verbosity(_instance, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return ret;
             }
 
             set
             {
                 libvlc_set_log_verbosity(_instance, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
@@ -128,7 +135,7 @@ namespace Atx.LibVLC
             get
             {
                 uint ret = libvlc_log_count(_log, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return (int)ret;
             }
         }
@@ -153,10 +160,11 @@ namespace Atx.LibVLC
             if(Count > 0)
             {
                 libvlc_log_clear(_log, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
+        #region libvlc api
         [DllImport("libvlc")]
         private static extern VlcLogHandle libvlc_log_open(VlcInstanceHandle engine, VlcExceptionHandle ex);
 
@@ -171,5 +179,6 @@ namespace Atx.LibVLC
 
         [DllImport("libvlc")]
         private static extern void libvlc_log_clear(VlcLogHandle log, VlcExceptionHandle ex);
+        #endregion
     }
 }

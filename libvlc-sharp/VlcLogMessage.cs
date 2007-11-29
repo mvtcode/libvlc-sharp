@@ -38,7 +38,7 @@ namespace Atx.LibVLC
     {
         public VlcLogMessageHandle() : base(IntPtr.Zero, true)
         {
-            handle = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(VlcLogMessagePtr)));
+            handle = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(VlcLogMessagePtr)));
         }
 
         public override bool IsInvalid
@@ -50,8 +50,8 @@ namespace Atx.LibVLC
         {
             if(!IsInvalid)
             {
-                Marshal.FreeCoTaskMem(handle);
-                handle = IntPtr.Zero;
+                //Marshal.FreeHGlobal(handle);
+                //handle = IntPtr.Zero;
                 return true;
             }
             return false;

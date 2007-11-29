@@ -35,11 +35,6 @@ using System.Runtime.InteropServices;
 
 namespace Atx.LibVLC
 {
-    public class VlcLogEnumException : Exception
-    {
-        public VlcLogEnumException(string m) : base(m) {}
-    }
-
     public class VlcLogEnumHandle : SafeHandle
     {
         public VlcLogEnumHandle() : base(IntPtr.Zero, true)
@@ -54,17 +49,17 @@ namespace Atx.LibVLC
         {
             if(!IsInvalid)
             {
-                VlcException ex = new VlcException();
-                libvlc_log_iterator_free(this, ex);
-                if(!ex.Raised)
+                VlcException _excp = new VlcException();
+                libvlc_log_iterator_free(this, _excp);
+                if(!_excp.Raised)
                 {
                     handle = IntPtr.Zero;
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("Failed to Release VlcLogEnum Handle: " + ex.Message);
-                    ex.Clear();
+                    Console.WriteLine("Failed to Release VlcLogEnum Handle: " + _excp.Message);
+                    _excp.Clear();
                     return false;
                 }
             }
@@ -79,7 +74,7 @@ namespace Atx.LibVLC
         }
         
         [DllImport("libvlc")]
-        private static extern void libvlc_log_iterator_free(VlcLogEnumHandle iter, VlcExceptionHandle ex);
+        private static extern void libvlc_log_iterator_free(VlcLogEnumHandle iter, VlcExceptionHandle _excp);
     }
 
     public class VlcLogEnum : IEnumerator
@@ -87,6 +82,7 @@ namespace Atx.LibVLC
         private VlcLogHandle log;
         private VlcLogEnumHandle iter;
         private VlcLogMessageHandle last_ptr;
+        private VlcException _excp = new VlcException();
 
         public VlcLogEnum(VlcLogHandle log)
         {
@@ -94,45 +90,32 @@ namespace Atx.LibVLC
             get_iter();
         }
 
-        private void get_iter() { VlcException ex = new VlcException(); get_iter(ex); }
-
-        private void get_iter(VlcException ex)
+        private void get_iter()
         {
-            iter = libvlc_log_get_iterator(log, ex);
-            handle_exception(ex);
+            iter = libvlc_log_get_iterator(log, _excp);
+            VlcException.HandleVlcException(ref _excp);
         }
 
-        private void free(VlcException ex)
+        private void free()
         {
             if(!iter.IsInvalid)
             {
-                libvlc_log_iterator_free(iter, ex);
-                handle_exception(ex);
+                libvlc_log_iterator_free(iter, _excp);
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
-        private bool has_next(VlcException ex)
+        private bool has_next(VlcException _excp)
         {
-            int ret = libvlc_log_iterator_has_next(iter, ex);
-            handle_exception(ex);
+            int ret = libvlc_log_iterator_has_next(iter, _excp);
+            VlcException.HandleVlcException(ref _excp);
             return ret == 1 ? true : false;
-        }
-
-        private void handle_exception(VlcException ex)
-        {
-            if(ex.Raised)
-            {
-                VlcLogEnumException vlee = new VlcLogEnumException(ex.Message);
-                Console.WriteLine(vlee);
-                ex.Clear();
-                throw vlee;
-            }
         }
 
         public virtual bool MoveNext()
         {
-            VlcException ex = new VlcException();
-            if(has_next(ex))
+            VlcException _excp = new VlcException();
+            if(has_next(_excp))
             {
                 int size = Marshal.SizeOf(typeof(VlcLogMessagePtr));
 
@@ -147,12 +130,12 @@ namespace Atx.LibVLC
                 VlcLogMessageHandle ptr = new VlcLogMessageHandle();
                 Marshal.StructureToPtr(tmp, ptr, true);
 
-                last_ptr = libvlc_log_iterator_next(iter, ptr, ex);
+                last_ptr = libvlc_log_iterator_next(iter, ptr, _excp);
 
-                if(!ex.Raised)
+                if(!_excp.Raised)
                     return true;
             
-                handle_exception(ex);
+                VlcException.HandleVlcException(ref _excp);
                 return false;
             }
             return false;
@@ -160,9 +143,9 @@ namespace Atx.LibVLC
 
         public virtual void Reset()
         {
-            VlcException ex = new VlcException();
-            free(ex);
-            get_iter(ex);
+            _excp.Clear();
+            free();
+            get_iter();
         }
 
         public virtual Object Current
@@ -178,16 +161,18 @@ namespace Atx.LibVLC
             }
         }
 
+        #region libvlc api
         [DllImport("libvlc")]
-        private static extern VlcLogEnumHandle libvlc_log_get_iterator(VlcLogHandle log, VlcExceptionHandle ex);
+        private static extern VlcLogEnumHandle libvlc_log_get_iterator(VlcLogHandle log, VlcExceptionHandle _excp);
 
         [DllImport("libvlc")]
-        private static extern void libvlc_log_iterator_free(VlcLogEnumHandle iter, VlcExceptionHandle ex);
+        private static extern void libvlc_log_iterator_free(VlcLogEnumHandle iter, VlcExceptionHandle _excp);
 
         [DllImport("libvlc")]
-        private static extern int libvlc_log_iterator_has_next(VlcLogEnumHandle iter, VlcExceptionHandle ex);
+        private static extern int libvlc_log_iterator_has_next(VlcLogEnumHandle iter, VlcExceptionHandle _excp);
 
         [DllImport("libvlc")]
-        private static extern VlcLogMessageHandle libvlc_log_iterator_next(VlcLogEnumHandle iter, VlcLogMessageHandle buffer, VlcExceptionHandle ex);
+        private static extern VlcLogMessageHandle libvlc_log_iterator_next(VlcLogEnumHandle iter, VlcLogMessageHandle buffer, VlcExceptionHandle _excp);
+        #endregion
     }
 }
