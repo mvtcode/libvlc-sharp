@@ -12,6 +12,8 @@ public class Foo
         }
 
         VlcConfig cfg = new VlcConfig();
+        cfg.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
+
         VlcInstance e = new VlcInstance(cfg);
         Console.WriteLine("Engine Init");
         Console.WriteLine("-------------------");
@@ -48,7 +50,9 @@ public class Foo
 
             e.Log.Clear();
 
-            Console.Write("{0} / {1}\r", e.Input.Time / 1000, e.Input.Length / 1000);
+            if ( !e.Input.IsInvalid )
+                Console.Write("{0} / {1}\r", e.Input.Time / 1000, e.Input.Length / 1000);
+            
             System.Threading.Thread.Sleep(5000);
         }
         Console.ReadLine();
