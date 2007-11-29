@@ -101,30 +101,12 @@ namespace Atx.LibVLC
             }
         }
 
-        private void handle_exception()
-        {
-            if (_excp.Raised)
-            {
-                VlcInstanceException vlcex;
-                switch (_excp.Message)
-                {
-                    case "No active input":
-                        vlcex = new VlcNoActiveInputException(_excp.Message) as VlcInstanceException;
-                        break;
-                    default:
-                        vlcex = new VlcInstanceException(_excp.Message);
-                        break;
-                }
-                throw vlcex;
-            }
-        }
-
         internal IntPtr Owner
         {
             set
             {
                 libvlc_video_reparent(_input, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
@@ -141,14 +123,14 @@ namespace Atx.LibVLC
             get
             {
                 Int64 ret = libvlc_input_get_time(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return ret;
             }
 
             set
             {
                 libvlc_input_set_time(_input, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
@@ -157,13 +139,13 @@ namespace Atx.LibVLC
             get
             {
                 float ret = libvlc_input_get_position(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return ret;
             }
             set
             {
                 libvlc_input_set_position(_input, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
 
@@ -172,7 +154,7 @@ namespace Atx.LibVLC
             get
             {
                 Int64 ret = libvlc_input_get_length(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return ret;
             }
         }
@@ -182,129 +164,119 @@ namespace Atx.LibVLC
             get
             {
                 float i = libvlc_input_get_rate(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return i;
             }
 
             set
             {
                 libvlc_input_set_rate(_input, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
-
 
         public bool WillPlay
         {
             get
             {
                 bool b = libvlc_input_will_play(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return b;
             }
         }
-
 
         public Int32 State
         {
             get
             {
                 Int32 i = libvlc_input_get_state(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return i;
             }
         }
-
 
         public bool HasVout
         {
             get
             {
                 bool b = libvlc_input_has_vout(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return b;
             }
         }
-
 
         public float FPS
         {
             get
             {
                 float i = libvlc_input_get_fps(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return i;
             }
         }
-
 
         public bool VideoFullScreen
         {
             get
             {
                 bool b = libvlc_get_fullscreen(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return b;
             }
 			
 			set
 			{
 				libvlc_set_fullscreen(_input, value, _excp);
-				handle_exception();
+				VlcException.HandleVlcException(ref _excp);
 			}
         }
-
 
         public Int32 VideoHeight
         {
             get
             {
                 Int32 i = libvlc_video_get_height(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return i;
             }
         }
-
 
         public Int32 VideoWidth
         {
             get
             {
                 Int32 i = libvlc_video_get_width(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return i;
             }
         }
-
 
         public string VideoAspectRatio
         {
             get
             {
                 string s = libvlc_video_get_aspect_ratio(_input, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
                 return s;
             }
 
             set
             {
                 libvlc_video_set_aspect_ratio(_input, value, _excp);
-                handle_exception();
+                VlcException.HandleVlcException(ref _excp);
             }
         }
-
 
         public void VideoToggleFullScreen()
         {
             libvlc_toggle_fullscreen(_input, _excp);
-            handle_exception();
+            VlcException.HandleVlcException(ref _excp);
         }
-
 
         public void TakeSnapshot(string fileName)
         {
             libvlc_video_take_snapshot(_input, fileName, _excp);
-            handle_exception();
+            VlcException.HandleVlcException(ref _excp);
         }
 
         #region libvlc api

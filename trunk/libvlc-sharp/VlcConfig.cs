@@ -34,6 +34,13 @@ using System.Text;
 
 namespace Atx.LibVLC
 {
+    public enum DolbySurroundValue
+    {
+        Auto = 0,
+        On = 1,
+        Off = 2
+    }
+
     public class VlcConfig
 	{
 	    public VlcConfig()
@@ -56,18 +63,121 @@ namespace Atx.LibVLC
             }
         }
 
+        private bool _audio = true;
+        public bool Audio
+        {
+            get
+            {
+                return _audio;
+            }
+
+            set
+            {
+                _audio = value;
+            }
+        }
+
+        private int _volume = -1;
+        public int Volume
+        {
+            get
+            {
+                return _volume;
+            }
+
+            set
+            {
+                _volume = value;
+            }
+        }
+
+        private bool _spdif = false;
+        public bool SPDIF
+        {
+            get
+            {
+                return _spdif;
+            }
+
+            set
+            {
+                _spdif = value;
+            }
+        }
+
+        private bool _fullscreen = false;
+        public bool FullScreen
+        {
+            get
+            {
+                return _fullscreen;
+            }
+
+            set
+            {
+                _fullscreen = value;
+            }
+        }
+
+
+        private DolbySurroundValue _forceDolby = DolbySurroundValue.Auto;
+        private DolbySurroundValue ForceDolbySurround
+        {
+            get
+            {
+                return _forceDolby;
+            }
+
+            set
+            {
+                _forceDolby = value;
+            }
+        }
+
 	    private List<string> _args = new List<string>();
 	    public string[] Arguments
 	    {
 		    get
             {
-				Int32 count = _args.Count + (PluginPath != null ? 1 : 0);
+				Int32 count = _args.Count + 
+                    (PluginPath != null ? 1 : 0) + 
+                    (!Audio ? 1 : 0) +
+                    (Volume > -1 ? 2 : 0) +
+                    (SPDIF ? 1 : 0) +
+                    (FullScreen ? 1 : 0) +
+                    (ForceDolbySurround != DolbySurroundValue.Auto ? 1 : 0);
+ 
 			    string[] tempArgs = new string[count];
 			    _args.CopyTo(tempArgs);
-				
-				if ( PluginPath != null && PluginPath.Trim().Length > 0 )
-					tempArgs[tempArgs.Length-1] = "--plugin-path=" + PluginPath;
-				
+
+                if (count > 0)
+                {
+                    int nextArg = tempArgs.Length - 1;
+                    if (PluginPath != null && PluginPath.Trim().Length > 0)
+                        tempArgs[nextArg--] = "--plugin-path=" + PluginPath;
+
+                    if (!Audio)
+                        tempArgs[nextArg--] = "--no-audio";
+
+                    if (Volume > -1)
+                    {
+                        tempArgs[nextArg--] = Volume.ToString();
+                        tempArgs[nextArg--] = "--volume";
+                    }
+
+                    if (SPDIF)
+                        tempArgs[nextArg--] = "--spdif";
+                    
+                    if ( FullScreen )
+                        tempArgs[nextArg--] = "--fullscreen";
+                    
+                    if (ForceDolbySurround != DolbySurroundValue.Auto)
+                    {
+                        tempArgs[nextArg--] = ((Int32)ForceDolbySurround).ToString();
+                        tempArgs[nextArg--] = "--force-dolby-surround";
+                    }
+                }
+
 			    return tempArgs;
 		    }
 	    }
