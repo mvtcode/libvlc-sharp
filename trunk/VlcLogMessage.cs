@@ -32,7 +32,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace libvlc
+namespace Atx.LibVLC
 {
     public class VlcLogMessageHandle : SafeHandle
     {

@@ -31,7 +31,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 
-namespace libvlc
+namespace Atx.LibVLC
 {
     internal class VlcObjectHandle : SafeHandle
     {
