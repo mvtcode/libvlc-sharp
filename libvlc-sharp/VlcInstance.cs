@@ -53,7 +53,7 @@ namespace Atx.LibVLC
         {
             if(!IsInvalid)
             {
-                libvlc_destroy(this);
+                libvlc_destroy(handle);
                 handle = IntPtr.Zero;
             }
             return true;
@@ -66,7 +66,7 @@ namespace Atx.LibVLC
         }
 
         [DllImport ("libvlc")]
-        private static extern void libvlc_destroy(VlcInstanceHandle engine);
+        private static extern void libvlc_destroy(IntPtr engine);
     }
 
     public class VlcInstance : IDisposable
@@ -96,8 +96,10 @@ namespace Atx.LibVLC
                 if (_log != null )
                     _log.Dispose();
 
-                if (!_instance.IsInvalid)
-                    _instance.Dispose();
+                if (Object != null)
+                    Object.Dispose();
+
+                _instance.Dispose();
 
                 if ( _excp != null )
                     _excp.Dispose();
@@ -145,12 +147,15 @@ namespace Atx.LibVLC
             }
         }
 
+        private VlcObject _object = null;
         public VlcObject Object
         {
             get
             {
-                VlcObject o = new VlcObject(ID);
-                return o;
+                if (_object == null)
+                    _object = new VlcObject(ID);
+
+                return _object;
             }
         }
 
