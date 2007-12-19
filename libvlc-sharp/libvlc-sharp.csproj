@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <NoStandardLibraries>false</NoStandardLibraries>
     <AssemblyName>libvlc-sharp</AssemblyName>
-    <RootNamespace>Atx.LibVLC</RootNamespace>
+    <RootNamespace>Atx.LibVlc</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -49,6 +49,7 @@
     <Compile Include="VlcLogEnum.cs" />
     <Compile Include="VlcLogMessage.cs" />
     <Compile Include="VlcObject.cs" />
+    <Compile Include="VlcTypes.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />
   <ProjectExtensions>
