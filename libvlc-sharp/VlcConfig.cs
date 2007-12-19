@@ -47,6 +47,10 @@ namespace Atx.LibVLC
 	    {
             _args.Add("-I");
             _args.Add("dummy");
+            _args.Add("--vout");
+            _args.Add("directx");
+            _args.Add("--overlay");
+            _args.Add("--directx-hw-yuv");
 	    }
  
         private string _pluginPath;

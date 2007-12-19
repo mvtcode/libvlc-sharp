@@ -134,6 +134,80 @@ namespace Atx.LibVLC
         TriggerCallbacks = 0x35
     }
 
+//TODO: Incomplete type - WARNING
+    [StructLayout(LayoutKind.Sequential)]
+    public struct vlc_common_t
+    {
+        public int      i_object_id;
+        public int      i_object_type;
+        public IntPtr   psz_object_type;
+        public IntPtr   psz_object_name;   
+        public IntPtr   psz_header;                                                       
+        public int      i_flags;                                                           
+                                                                            
+        ///* Thread properties, if any */                                         
+        //vlc_bool_t   b_thread;                                                  
+        //vlc_thread_t thread_id;                                                 
+                                                                            
+        ///* Object access lock */                                                
+        //vlc_mutex_t  object_lock;                                               
+        //vlc_cond_t   object_wait;                                               
+                                                                                
+        ///* Object properties */                                                 
+        //volatile vlc_bool_t b_error;                  /**< set by the object */ 
+        //volatile vlc_bool_t b_die;                   /**< set by the outside */ 
+        //volatile vlc_bool_t b_dead;                   /**< set by the object */ 
+        //volatile vlc_bool_t b_attached;               /**< set by the object */ 
+        //vlc_bool_t b_force;      /**< set by the outside (eg. module_Need()) */ 
+                                                                                
+        ///* Object variables */                                                  
+        //vlc_mutex_t     var_lock;                                               
+        //int             i_vars;                                                 
+        //variable_t *    p_vars;                                                 
+                                                                                
+        ///* Stuff related to the libvlc structure */                             
+        //libvlc_t *      p_libvlc;                      /**< root of all evil */ 
+        //vlc_t *         p_vlc;                   /**< (root of all evil) - 1 */ 
+                                                                                
+        //volatile int    i_refcount;                         /**< usage count */ 
+        //vlc_object_t *  p_parent;                            /**< our parent */ 
+        //vlc_object_t ** pp_children;                       /**< our children */ 
+        //volatile int    i_children;                                             
+                                                                                
+        ///* Private data */                                                      
+        //void *          p_private;                                              
+                                                                                
+        ///** Just a reminder so that people don't cast garbage */                
+        //int be_sure_to_add_VLC_COMMON_MEMBERS_to_struct;                        
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct module_t
+    {
+        vlc_common_t cmn;
+        IntPtr  psz_shortname;                                      /* Module name */
+        IntPtr  psz_longname;                           /* Module descriptive name */
+        IntPtr  psz_help;                /* Long help string for "special" modules */
+        IntPtr  psz_program;        /* Program name which will activate the module */
+        IntPtr  pp_shortcuts;//[ MODULE_SHORTCUT_MAX ];    /* Shortcuts to the module */
+        IntPtr  psz_capability;                                   /* Capability */
+        int     i_score;                           /* Score for each capability */
+        UInt32  i_cpu;                             /* Required CPU capabilities */
+        bool    b_unloadable;                          /* Can we be dlclosed? */
+        bool    b_reentrant;                             /* Are we reentrant? */
+        bool    b_submodule;                          /* Is this a submodule? */
+        IntPtr  pf_activate;
+        IntPtr  pf_deactivate;
+        IntPtr  p_config;             /* Module configuration structure */
+        UInt32  i_config_items;        /* number of configuration items */
+        UInt32  i_bool_items;            /* number of bool config items */
+        IntPtr  handle;                             /* Unique handle */
+        IntPtr  psz_filename;                     /* Module filename */
+        bool    b_builtin;  /* Set to true if the module is built in */
+        bool    b_loaded;        /* Set to true if the dll is loaded */
+        IntPtr  p_symbols;
+    }
+
     [StructLayout(LayoutKind.Explicit)]
     public struct vlc_value_t
     {
@@ -280,12 +354,39 @@ namespace Atx.LibVLC
             __var_Set(_vlcObject, name, ref v);
         }
 
+        public IList<string> ModuleList()
+        {
+            if (_vlcObject.IsInvalid)
+                throw new NullReferenceException("VLC object is NULL");
+
+            IList<string> ret = new List<string>();
+            IntPtr ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere);
+            if (ptrList != IntPtr.Zero)
+            {
+                vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList, typeof(vlc_list_t));
+                for (int i = 0; i < list.i_count; i++)
+                {
+                    IntPtr ptrValue = new IntPtr(list.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
+                    vlc_value_t value = (vlc_value_t)Marshal.PtrToStructure(ptrValue, typeof(vlc_value_t));
+                    vlc_common_t cmn = (vlc_common_t)Marshal.PtrToStructure(value.p_object, typeof(vlc_common_t));
+//TODO: Complete implementation from 'zsh.cpp'
+                    string s = Marshal.PtrToStringAnsi(cmn.psz_object_name);
+                    ret.Add(s);
+                }
+            }
+
+            return ret;
+        }
+
         #region libvlc api
         [DllImport("libvlc")]
         private static extern VlcObjectHandle vlc_current_object(int i_object);
 
         [DllImport("libvlc")]
         private static extern VlcObjectHandle __vlc_object_find(VlcObjectHandle p_object, VlcObjectType objectType, VlcObjectSearchMode mode);
+
+        [DllImport("libvlc")]
+        private static extern IntPtr __vlc_list_find(VlcObjectHandle p_object, VlcObjectType objectType, VlcObjectSearchMode mode);
 
         [DllImport("libvlc")]
         private static extern Int32 __var_Get(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, ref vlc_value_t value);
