@@ -34,6 +34,7 @@ using System.Runtime.InteropServices;
 
 namespace Atx.LibVLC
 {
+
     public class VlcInputHandle : SafeHandle
     {
         private bool disposed = false;
