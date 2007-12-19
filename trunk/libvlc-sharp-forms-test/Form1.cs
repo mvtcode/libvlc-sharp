@@ -113,7 +113,8 @@ namespace test_project
             VlcConfig cfg = new VlcConfig();
             cfg.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
   
-			_v = new VlcInstance(cfg);                
+			_v = new VlcInstance(cfg);
+            IList<string> s = _v.Object.ModuleList();
 			_v.Owner = c.Handle;               
             _v.PlaylistAdd("X:\\videos\\300.avi");
             _v.PlaylistAdd("/data/media/videos/300.avi");
