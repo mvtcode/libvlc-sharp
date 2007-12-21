@@ -10,71 +10,71 @@ using System.Threading;
 
 namespace test_project
 {
-    public class LogForm : Form
-    {
-        private ListBox _lb = new ListBox();
-        private VlcInstance _inst;
-        private EventWaitHandle _stop = new EventWaitHandle(false, EventResetMode.ManualReset);
-        private Thread _th;
-        private delegate void DumpMessagesDelegate();
+    //public class LogForm : Form
+    //{
+    //    private ListBox _lb = new ListBox();
+    //    private VlcInstance _inst;
+    //    private EventWaitHandle _stop = new EventWaitHandle(false, EventResetMode.ManualReset);
+    //    private Thread _th;
+    //    private delegate void DumpMessagesDelegate();
 
-        public LogForm(VlcInstance inst)
-        {
-            _lb.IntegralHeight = false;
-            _lb.HorizontalScrollbar = true;
-            _inst = inst;
-            _th = new Thread(new ThreadStart(this.ThreadMethod));
+    //    public LogForm(VlcInstance inst)
+    //    {
+    //        _lb.IntegralHeight = false;
+    //        _lb.HorizontalScrollbar = true;
+    //        _inst = inst;
+    //        _th = new Thread(new ThreadStart(this.ThreadMethod));
 
-            this.Load += new EventHandler(this.OnLoad);
-            this.Layout += new LayoutEventHandler(this.OnLayout);
-        }
+    //        this.Load += new EventHandler(this.OnLoad);
+    //        this.Layout += new LayoutEventHandler(this.OnLayout);
+    //    }
 
-        private void OnLoad(object sender, EventArgs e)
-        {
-            Controls.Add(_lb);
-            _th.Start();
-        }
+    //    private void OnLoad(object sender, EventArgs e)
+    //    {
+    //        Controls.Add(_lb);
+    //        //_th.Start();
+    //    }
 
-        private void DumpMessages()
-        {
-            foreach (VlcLogMessage vlm in _inst.Log)
-            {
-                _lb.Items.Add(String.Format("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message));
-                _lb.SetSelected(_lb.Items.Count - 1, true);
-            }
-        }
+    //    private void DumpMessages()
+    //    {
+    //        foreach (VlcLogMessage vlm in _inst.Log)
+    //        {
+    //            _lb.Items.Add(String.Format("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message));
+    //            _lb.SetSelected(_lb.Items.Count - 1, true);
+    //        }
+    //    }
 
-        private void ThreadMethod()
-        {
-            while (!_stop.WaitOne(1000, false))
-            {
-                Invoke(new DumpMessagesDelegate(DumpMessages));
-            }
-        }
+    //    private void ThreadMethod()
+    //    {
+    //        while (!_stop.WaitOne(1000, false))
+    //        {
+    //            Invoke(new DumpMessagesDelegate(DumpMessages));
+    //        }
+    //    }
 
-        public void Stop()
-        {
-            _stop.Set();
-            _th.Join();
-        }
+    //    public void Stop()
+    //    {
+    //        _stop.Set();
+    //        //_th.Join();
+    //    }
 
-        protected override void OnClosing(CancelEventArgs e)
-        {
-            Stop();
-            base.OnClosing(e);
-        }
+    //    protected override void OnClosing(CancelEventArgs e)
+    //    {
+    //        Stop();
+    //        base.OnClosing(e);
+    //    }
 
-        private void OnLayout(object sender, LayoutEventArgs e)
-        {
-            _lb.Location = new Point(ClientRectangle.Left, ClientRectangle.Top);
-            _lb.Size = new Size(ClientRectangle.Width, ClientRectangle.Height);
-        }
-    }
+    //    private void OnLayout(object sender, LayoutEventArgs e)
+    //    {
+    //        _lb.Location = new Point(ClientRectangle.Left, ClientRectangle.Top);
+    //        _lb.Size = new Size(ClientRectangle.Width, ClientRectangle.Height);
+    //    }
+    //}
 
     public class Form1 : Form
     {
         private VlcInstance _v;
-        private LogForm _logForm;
+        //private LogForm _logForm;
         private Control c = new Control();
         private Button bnPause = new Button();
 		private Button bnAr43 = new Button();
@@ -114,16 +114,16 @@ namespace test_project
             cfg.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
   
 			_v = new VlcInstance(cfg);
-            IList<string> s = _v.Object.ModuleList();
+            IList<string> s = _v.Object.ModuleList;
 			_v.Owner = c.Handle;               
             _v.PlaylistAdd("X:\\videos\\300.avi");
             _v.PlaylistAdd("/data/media/videos/300.avi");
             _v.Play();
 
-            _logForm = new LogForm(_v);
-            _logForm.Show();
-            _logForm.Top = this.Top;
-            _logForm.Left = this.Right;
+            //_logForm = new LogForm(_v);
+            //_logForm.Show();
+            //_logForm.Top = this.Top;
+            //_logForm.Left = this.Right;
         }
 
         private void OnLayout(object sender, LayoutEventArgs e)
@@ -176,7 +176,7 @@ namespace test_project
 		
 		protected override void OnClosing (CancelEventArgs e)
 		{
-            _logForm.Stop();
+            //_logForm.Stop();
 			_v.Dispose();
 			base.OnClosing (e);
 		}
