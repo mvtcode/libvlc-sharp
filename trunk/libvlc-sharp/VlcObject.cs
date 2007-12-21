@@ -142,6 +142,39 @@ namespace Atx.LibVLC
             Dispose(false);
         }
 
+        private IList<string> _moduleList;
+        public IList<string> ModuleList
+        {
+            get
+            {
+                if (_vlcObject.IsInvalid)
+                    throw new NullReferenceException("VLC object is NULL");
+
+                if (_moduleList == null)
+                {
+                    _moduleList = new List<string>();
+                    VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere);
+                    if (!ptrList.IsInvalid)
+                    {
+                        vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList.DangerousGetHandle(), typeof(vlc_list_t));
+                        for (int i = 0; i < list.i_count; i++)
+                        {
+                            IntPtr ptrValue = new IntPtr(list.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
+                            vlc_value_t value = (vlc_value_t)Marshal.PtrToStructure(ptrValue, typeof(vlc_value_t));
+                            vlc_common_t common = (vlc_common_t)Marshal.PtrToStructure(value.p_object, typeof(vlc_common_t));
+
+                            _moduleList.Add(Marshal.PtrToStringAnsi(common.psz_object_name));
+                        }
+                        
+                        // Must dispose -- vlc will not destroy itself
+                        ptrList.Dispose();
+                    }
+                }
+
+                return _moduleList;
+            }
+        }
+
         public VlcObject FindObject(VlcObjectType type, VlcObjectSearchMode mode)
         {
             if (_vlcObject.IsInvalid)
@@ -216,30 +249,7 @@ namespace Atx.LibVLC
             v.i_int = val;
             __var_Set(_vlcObject, name, ref v);
         }
-
-        public IList<string> ModuleList()
-        {
-            if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
-
-            IList<string> ret = new List<string>();
-            VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere);
-            if (!ptrList.IsInvalid)
-            {
-                vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList.DangerousGetHandle(), typeof(vlc_list_t));
-                for (int i = 0; i < list.i_count; i++)
-                {
-                    IntPtr ptrValue = new IntPtr(list.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
-                    vlc_value_t value = (vlc_value_t)Marshal.PtrToStructure(ptrValue, typeof(vlc_value_t));
-                    vlc_common_t cmn = (vlc_common_t)Marshal.PtrToStructure(value.p_object, typeof(vlc_common_t));
-//TODO: Complete implementation from 'zsh.cpp'
-                    ret.Add(Marshal.PtrToStringAnsi(cmn.psz_object_name));
-                }
-            }
-
-            return ret;
-        }
-
+        
         #region libvlc api
         [DllImport("libvlc")]
         private static extern VlcObjectHandle vlc_current_object(int i_object);
