@@ -156,18 +156,23 @@ namespace Atx.LibVLC
                     VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere);
                     if (!ptrList.IsInvalid)
                     {
-                        vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList.DangerousGetHandle(), typeof(vlc_list_t));
-                        for (int i = 0; i < list.i_count; i++)
+                        try
                         {
-                            IntPtr ptrValue = new IntPtr(list.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
-                            vlc_value_t value = (vlc_value_t)Marshal.PtrToStructure(ptrValue, typeof(vlc_value_t));
-                            vlc_common_t common = (vlc_common_t)Marshal.PtrToStructure(value.p_object, typeof(vlc_common_t));
+                            vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList.DangerousGetHandle(), typeof(vlc_list_t));
+                            for (int i = 0; i < list.i_count; i++)
+                            {
+                                IntPtr ptrValue = new IntPtr(list.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
+                                vlc_value_t value = (vlc_value_t)Marshal.PtrToStructure(ptrValue, typeof(vlc_value_t));
+                                vlc_common_t common = (vlc_common_t)Marshal.PtrToStructure(value.p_object, typeof(vlc_common_t));
 
-                            _moduleList.Add(Marshal.PtrToStringAnsi(common.psz_object_name));
+                                _moduleList.Add(Marshal.PtrToStringAnsi(common.psz_object_name));
+                            }
                         }
-                        
-                        // Must dispose -- vlc will not destroy itself
-                        ptrList.Dispose();
+                        finally
+                        {
+                            // Must dispose - vlc will not destroy properly
+                            ptrList.Dispose();
+                        }
                     }
                 }
 
@@ -195,15 +200,20 @@ namespace Atx.LibVLC
             vlc_value_t b = new vlc_value_t();
 			__var_Change(_vlcObject, name, VlcChangeAction.GetList, ref a, ref b );
 		
-            vlc_list_t t = (vlc_list_t)Marshal.PtrToStructure(b.p_list, typeof(vlc_list_t));
-            for (int i = 0; i < t.i_count; i++)
+            try
             {
-                IntPtr textPtr = new IntPtr(t.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
-                vlc_value_t textValue = (vlc_value_t)Marshal.PtrToStructure(textPtr, typeof(vlc_value_t));
-                choices.Add(Marshal.PtrToStringAnsi(textValue.psz_string));
+                vlc_list_t t = (vlc_list_t)Marshal.PtrToStructure(b.p_list, typeof(vlc_list_t));
+                for (int i = 0; i < t.i_count; i++)
+                {
+                    IntPtr textPtr = new IntPtr(t.p_values.ToInt32() + i * Marshal.SizeOf(typeof(vlc_value_t)));
+                    vlc_value_t textValue = (vlc_value_t)Marshal.PtrToStructure(textPtr, typeof(vlc_value_t));
+                    choices.Add(Marshal.PtrToStringAnsi(textValue.psz_string));
+                }
             }
-
-			__var_Change(_vlcObject, name, VlcChangeAction.FreeList, ref a, ref b );
+            finally
+            {
+                __var_Change(_vlcObject, name, VlcChangeAction.FreeList, ref a, ref b);
+            }
 		}
 
         public string GetStringValue(string name)
@@ -224,9 +234,14 @@ namespace Atx.LibVLC
 
             vlc_value_t v = new vlc_value_t();
             v.psz_string = Marshal.StringToHGlobalAnsi(val);
-
-            __var_Set(_vlcObject, name, ref v);
-            Marshal.FreeHGlobal(v.psz_string);
+            try
+            {
+                __var_Set(_vlcObject, name, ref v);
+            }
+            finally
+            {
+                Marshal.FreeHGlobal(v.psz_string);
+            }
         }
 
         public Int32 GetIntValue(string name)
