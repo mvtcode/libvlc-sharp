@@ -153,10 +153,9 @@ namespace Atx.LibVLC
                 if (_moduleList == null)
                 {
                     _moduleList = new List<string>();
-                    VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere);
-                    if (!ptrList.IsInvalid)
+                    using (VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere))
                     {
-                        try
+                        if (!ptrList.IsInvalid)
                         {
                             vlc_list_t list = (vlc_list_t)Marshal.PtrToStructure(ptrList.DangerousGetHandle(), typeof(vlc_list_t));
                             for (int i = 0; i < list.i_count; i++)
@@ -167,11 +166,6 @@ namespace Atx.LibVLC
 
                                 _moduleList.Add(Marshal.PtrToStringAnsi(common.psz_object_name));
                             }
-                        }
-                        finally
-                        {
-                            // Must dispose - vlc will not destroy properly
-                            ptrList.Dispose();
                         }
                     }
                 }
