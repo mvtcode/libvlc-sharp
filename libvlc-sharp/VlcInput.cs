@@ -105,6 +105,7 @@ namespace Atx.LibVLC
         {
             set
             {
+
                 libvlc_video_reparent(_input, value, _excp);
                 VlcException.HandleVlcException(ref _excp);
             }
