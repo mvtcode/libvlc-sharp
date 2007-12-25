@@ -114,15 +114,22 @@ namespace Atx.LibVLC
         {
             get
             {
-                uint ret = libvlc_get_log_verbosity(_instance, _excp);
-                VlcException.HandleVlcException(ref _excp);
+                uint ret;
+                lock (SyncRoot)
+                {
+                    ret = libvlc_get_log_verbosity(_instance, _excp);
+                    VlcException.HandleVlcException(ref _excp);
+                }
                 return ret;
             }
 
             set
             {
-                libvlc_set_log_verbosity(_instance, value, _excp);
-                VlcException.HandleVlcException(ref _excp);
+                lock (SyncRoot)
+                {
+                    libvlc_set_log_verbosity(_instance, value, _excp);
+                    VlcException.HandleVlcException(ref _excp);
+                }
             }
         }
 
@@ -134,20 +141,25 @@ namespace Atx.LibVLC
         {
             get
             {
-                uint ret = libvlc_log_count(_log, _excp);
-                VlcException.HandleVlcException(ref _excp);
+                uint ret;
+                lock (SyncRoot)
+                {
+                    ret = libvlc_log_count(_log, _excp);
+                    VlcException.HandleVlcException(ref _excp);
+                }
                 return (int)ret;
             }
         }
 
+        private object _synchObject = new object();
         public virtual object SyncRoot
         {
-            get { return this; }
+            get { return _synchObject; }
         }
 
         public virtual bool IsSynchronized
         {
-            get { return false; }
+            get { return  true; }
         }
 
         public virtual IEnumerator GetEnumerator()
@@ -157,10 +169,13 @@ namespace Atx.LibVLC
 
         public void Clear()
         {
-            if(Count > 0)
+            lock (SyncRoot)
             {
-                libvlc_log_clear(_log, _excp);
-                VlcException.HandleVlcException(ref _excp);
+                if (Count > 0)
+                {
+                    libvlc_log_clear(_log, _excp);
+                    VlcException.HandleVlcException(ref _excp);
+                }
             }
         }
 
