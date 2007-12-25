@@ -303,7 +303,10 @@ namespace Atx.LibVLC
             if (!_instance.IsInvalid)
             {
                 if (!Input.IsInvalid)
-                    Input.Owner = hwnd;
+                {
+                    if (Owner != hwnd)
+                        Input.Owner = hwnd;
+                }
                 else
                 {
                     libvlc_video_set_parent(_instance, hwnd, _excp);
