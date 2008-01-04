@@ -142,17 +142,17 @@ namespace Atx.LibVLC
             Dispose(false);
         }
 
-        private IList<string> _moduleList;
-        public IList<string> ModuleList
+        private IList<String> _moduleList;
+        public IList<String> ModuleList
         {
             get
             {
                 if (_vlcObject.IsInvalid)
-                    throw new NullReferenceException("VLC object is NULL");
+                    throw new ApplicationException("VLC object is NULL");
 
                 if (_moduleList == null)
                 {
-                    _moduleList = new List<string>();
+                    _moduleList = new List<String>();
                     using (VlcListHandle ptrList = __vlc_list_find(_vlcObject, VlcObjectType.Module, VlcObjectSearchMode.Anywhere))
                     {
                         if (!ptrList.IsInvalid)
@@ -177,18 +177,18 @@ namespace Atx.LibVLC
         public VlcObject FindObject(VlcObjectType type, VlcObjectSearchMode mode)
         {
             if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
             VlcObject o = new VlcObject(__vlc_object_find(_vlcObject, type, mode));
             return o;
         }
 
-		public void GetListChoices(string name, out IList<string> choices)
+		public void GetListChoices(String name, out IList<String> choices)
 		{
 			if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
-            choices = new List<string>();
+            choices = new List<String>();
 
 			vlc_value_t a = new vlc_value_t();
             vlc_value_t b = new vlc_value_t();
@@ -210,10 +210,10 @@ namespace Atx.LibVLC
             }
 		}
 
-        public string GetStringValue(string name)
+        public String GetStringValue(String name)
         {
             if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
 			vlc_value_t v = new vlc_value_t();
             __var_Get(_vlcObject, name, ref v);
@@ -221,10 +221,10 @@ namespace Atx.LibVLC
 			return Marshal.PtrToStringAuto(v.psz_string);
         }
 
-        public void SetStringValue(string name, string val)
+        public void SetStringValue(String name, String val)
         {
             if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
             vlc_value_t v = new vlc_value_t();
             v.psz_string = Marshal.StringToHGlobalAnsi(val);
@@ -238,10 +238,10 @@ namespace Atx.LibVLC
             }
         }
 
-        public Int32 GetIntValue(string name)
+        public Int32 GetIntValue(String name)
         {
             if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
             vlc_value_t v = new vlc_value_t();
             __var_Get(_vlcObject, name, ref v);
@@ -249,15 +249,32 @@ namespace Atx.LibVLC
             return v.i_int;
         }
 
-        public void SetIntValue(string name, Int32 val)
+        public void SetIntValue(String name, Int32 val)
         {
             if (_vlcObject.IsInvalid)
-                throw new NullReferenceException("VLC object is NULL");
+                throw new ApplicationException("VLC object is NULL");
 
             vlc_value_t v = new vlc_value_t();
             v.i_int = val;
             __var_Set(_vlcObject, name, ref v);
         }
+
+        public String GetConfigStringValue(String name)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            return __config_GetPsz(_vlcObject, name);
+        }
+
+        public void SetConfigStringValue(String name, String value)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            __config_PutPsz(_vlcObject, name, value);
+        }
+
         
         #region libvlc api
         [DllImport("libvlc")]
@@ -274,14 +291,27 @@ namespace Atx.LibVLC
 
         [DllImport("libvlc")]
         private static extern Int32 __var_Set(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, ref vlc_value_t value);
-		
+
         [DllImport("libvlc")]
-        private static extern Int32 __var_Change(
-            VlcObjectHandle p_ojbect, 
-            [MarshalAs(UnmanagedType.LPStr)] string name,
-           VlcChangeAction action, 
-            ref vlc_value_t valA, 
-            ref vlc_value_t valB);
+        private static extern Int32 __var_Change(VlcObjectHandle p_ojbect, [MarshalAs(UnmanagedType.LPStr)] String name, VlcChangeAction action,  ref vlc_value_t valA, ref vlc_value_t valB);
+
+//TODO: Implement and test the following:
+        //VLC_EXPORT( int,    __config_GetType,  (vlc_object_t *, const char *) );
+        //VLC_EXPORT( int,    __config_GetInt,   (vlc_object_t *, const char *) );
+        //VLC_EXPORT( void,   __config_PutInt,   (vlc_object_t *, const char *, int) );
+        
+        //[DllImport("libvlc")]
+        //private static extern float __config_GetFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
+
+        //[DllImport("libvlc")]
+        //private static extern void __config_PutFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, float value);
+        
+        [DllImport("libvlc")]
+        private static extern String __config_GetPsz(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
+
+        [DllImport("libvlc")]
+        private static extern void __config_PutPsz(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, [MarshalAs(UnmanagedType.LPStr)] String value);
+
         #endregion
     }
 }
