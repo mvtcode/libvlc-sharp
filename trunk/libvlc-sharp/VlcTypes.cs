@@ -99,41 +99,6 @@ namespace Atx.LibVLC
         TriggerCallbacks = 0x35
     }
 
-////TODO: Struct sizes will be different on linux and os x
-//    //HACK: 24-byte structure
-//    [StructLayout(LayoutKind.Sequential)]
-//    internal struct Critical_Section
-//    {
-//        Int32 a;
-//        Int32 b;
-//        Int32 c;
-//        Int32 d;
-//        Int32 e;
-//        Int32 f;
-//    }
-
-////TODO: Struct sizes will be different on linux and os x
-//    [StructLayout(LayoutKind.Sequential)]
-//    internal struct vlc_mutex_t
-//    {
-//        public IntPtr mutex;
-//        public Critical_Section csection;
-//        public IntPtr p_this;
-//    }
-
-////TODO: Struct sizes will be different on linux and os x
-//    [StructLayout(LayoutKind.Sequential)]
-//    internal struct vlc_cond_t
-//    {
-//        volatile Int32  i_waiting_threads;
-//        IntPtr          event_obj;
-//        IntPtr          SignalObjectAndWait;
-//        IntPtr          semaphore;
-//        Critical_Section csection;
-//        Int32           i_win9x_cv;
-//        IntPtr          p_this;
-//    }
-
     [StructLayout(LayoutKind.Sequential)]
     internal class vlc_common_t
     {
@@ -166,33 +131,6 @@ namespace Atx.LibVLC
         public Int32 be_sure_to_add_VLC_COMMON_MEMBERS_to_struct;
          */
     }
-
-////TODO: Struct sizes will be different on linux and os x
-//    [StructLayout(LayoutKind.Sequential)]
-//    internal class module_t : vlc_common_t
-//    {
-//        public IntPtr psz_shortname;
-//        public IntPtr psz_longname;
-//        public IntPtr psz_help;
-//        public IntPtr psz_program;
-//        public IntPtr pp_shortcuts;
-//        public IntPtr psz_capability;
-//        public Int32 i_score;
-//        public UInt32 i_cpu;
-//        public bool b_unloadable;
-//        public bool b_reentrant;
-//        public bool b_submodule;
-//        public IntPtr pf_activate;
-//        public IntPtr pf_deactivate;
-//        public IntPtr p_config;
-//        public UInt32 i_config_items;
-//        public UInt32 i_bool_items;
-//        public IntPtr handle;
-//        public IntPtr psz_filename;
-//        public bool b_builtin;
-//        public bool b_loaded;
-//        public IntPtr p_symbols;
-//    }
 
     [StructLayout(LayoutKind.Explicit)]
     internal struct vlc_value_t
