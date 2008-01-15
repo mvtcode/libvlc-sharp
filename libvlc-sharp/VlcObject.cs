@@ -275,7 +275,38 @@ namespace Atx.LibVLC
             __config_PutPsz(_vlcObject, name, value);
         }
 
-        
+        public float GetConfigFloatValue(String name)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            return __config_GetFloat(_vlcObject, name);
+        }
+
+        public void SetConfigFloatValue(String name, float value)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            __config_PutFloat(_vlcObject, name, value);
+        }
+
+        public Int32 GetConfigIntValue(String name)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            return __config_GetInt(_vlcObject, name);
+        }
+
+        public void SetConfigIntValue(String name, Int32 value)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            __config_PutInt(_vlcObject, name, value);
+        }
+
         #region libvlc api
         [DllImport("libvlc")]
         private static extern VlcObjectHandle vlc_current_object(int i_object);
@@ -296,15 +327,20 @@ namespace Atx.LibVLC
         private static extern Int32 __var_Change(VlcObjectHandle p_ojbect, [MarshalAs(UnmanagedType.LPStr)] String name, VlcChangeAction action,  ref vlc_value_t valA, ref vlc_value_t valB);
 
 //TODO: Implement and test the following:
-        //VLC_EXPORT( int,    __config_GetType,  (vlc_object_t *, const char *) );
-        //VLC_EXPORT( int,    __config_GetInt,   (vlc_object_t *, const char *) );
-        //VLC_EXPORT( void,   __config_PutInt,   (vlc_object_t *, const char *, int) );
-        
         //[DllImport("libvlc")]
-        //private static extern float __config_GetFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
+        //Int32 __config_GetType(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
 
-        //[DllImport("libvlc")]
-        //private static extern void __config_PutFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, float value);
+        [DllImport("libvlc")]
+        private static extern Int32 __config_GetInt(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
+
+        [DllImport("libvlc")]
+        private static extern void __config_PutInt(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, Int32 value);
+        
+        [DllImport("libvlc")]
+        private static extern float __config_GetFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
+
+        [DllImport("libvlc")]
+        private static extern void __config_PutFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, float value);
         
         [DllImport("libvlc")]
         private static extern String __config_GetPsz(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
