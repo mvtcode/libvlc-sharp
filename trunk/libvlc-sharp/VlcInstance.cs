@@ -128,18 +128,21 @@ namespace Atx.LibVLC
             }
         }
         
-        private IntPtr _owner;
-        public IntPtr Owner
+        public IntPtr Parent
         {
             get
             {
-                return _owner;
+                IntPtr hwnd = (IntPtr)VlcObject.GetIntValue("drawable");
+                return hwnd;
             }
 
             set
             {
-                SetOwner(value);
-                _owner = value;
+                if (Parent != value)
+                {
+                    libvlc_video_set_parent(VlcInstanceHandle, value, _excp);
+                    VlcException.HandleVlcException(ref _excp);
+                }
             }
         }
 
@@ -258,23 +261,6 @@ namespace Atx.LibVLC
         {
             libvlc_audio_toggle_mute(VlcInstanceHandle, _excp);
             VlcException.HandleVlcException(ref _excp);
-        }
-
-        internal void SetOwner(IntPtr hwnd)
-        {
-            if (!VlcInstanceHandle.IsInvalid)
-            {
-                if (!VlcInput.IsInvalid)
-                {
-                    if (Owner != hwnd)
-                        VlcInput.Owner = hwnd;
-                }
-                else
-                {
-                    libvlc_video_set_parent(VlcInstanceHandle, hwnd, _excp);
-                    VlcException.HandleVlcException(ref _excp);
-                }
-            }
         }
 
         #region libvlc api

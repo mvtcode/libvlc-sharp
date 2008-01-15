@@ -84,7 +84,6 @@ namespace Atx.LibVLC
 
         public void Play(Int32 item)
         {
-            VlcInstance.SetOwner(VlcInstance.Owner);
             libvlc_playlist_play(VlcInstance.VlcInstanceHandle, item, 0, null, _excp);
             VlcException.HandleVlcException(ref _excp);
         }

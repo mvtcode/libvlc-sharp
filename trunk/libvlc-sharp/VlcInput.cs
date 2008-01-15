@@ -101,16 +101,6 @@ namespace Atx.LibVLC
             }
         }
 
-        internal IntPtr Owner
-        {
-            set
-            {
-
-                libvlc_video_reparent(_input, value, _excp);
-                VlcException.HandleVlcException(ref _excp);
-            }
-        }
-
         public bool IsInvalid
         {
             get

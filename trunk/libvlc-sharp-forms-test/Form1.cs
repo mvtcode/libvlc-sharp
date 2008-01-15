@@ -115,7 +115,7 @@ namespace test_project
 
 			_v = new VlcInstance(vlcConfig);
 
-			_v.Owner = c.Handle;               
+			_v.Parent = c.Handle;               
             _v.VlcPlaylist.Add("");
             _v.VlcPlaylist.Play();
 
