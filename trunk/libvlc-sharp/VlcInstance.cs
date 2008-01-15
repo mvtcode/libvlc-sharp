@@ -178,7 +178,7 @@ namespace Atx.LibVLC
             }
         }
 
-        private VlcObject _object = null;
+        private VlcObject _object;
         public VlcObject VlcObject
         {
             get
