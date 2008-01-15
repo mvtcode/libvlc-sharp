@@ -108,17 +108,16 @@ namespace test_project
 			Controls.Add(bnAr169);
 			Controls.Add(bnAr);
 
-            Text = "libvlc version: " + VlcInstance.Version;
+            Text = "libvlc version: " + VlcInstance.VlcLibraryVersion;
 
-            VlcConfig cfg = new VlcConfig();
-            cfg.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
-  
-			_v = new VlcInstance(cfg);
-            IList<string> s = _v.Object.ModuleList;
+            VlcConfig vlcConfig = new VlcConfig();
+            vlcConfig.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
+
+			_v = new VlcInstance(vlcConfig);
+
 			_v.Owner = c.Handle;               
-            _v.PlaylistAdd("X:\\videos\\300.avi");
-            _v.PlaylistAdd("/data/media/videos/300.avi");
-            _v.Play();
+            _v.VlcPlaylist.Add("D:\\SME\\Video\\CenterStage.wmv");
+            _v.VlcPlaylist.Play();
 
             //_logForm = new LogForm(_v);
             //_logForm.Show();
@@ -149,27 +148,27 @@ namespace test_project
 
         private void OnPauseClicked(object o, EventArgs e)
         {
-            VlcObject vout = _v.Object.FindObject(VlcObjectType.VOut, VlcObjectSearchMode.Child);
+            VlcObject vout = _v.VlcObject.FindObject(VlcObjectType.VOut, VlcObjectSearchMode.Child);
 
 			IList<string> choices;
             vout.GetListChoices("deinterlace", out choices);
 			
-			_v.Pause();
+			_v.VlcPlaylist.Pause();
         }
 
         private void OnAr43Clicked(object o, EventArgs e)
 		{
-			_v.Input.VideoAspectRatio = "4:3";
+			_v.VlcInput.VideoAspectRatio = "4:3";
 		}
 
 		private void OnAr169Clicked(object o, EventArgs e)
 		{
-			_v.Input.VideoAspectRatio = "16:9";
+			_v.VlcInput.VideoAspectRatio = "16:9";
 		}
 		
 		private void OnArClicked(object o, EventArgs e)
 		{
-            VlcObject vo = _v.Object.FindObject(VlcObjectType.VOut, VlcObjectSearchMode.Child);
+            VlcObject vo = _v.VlcObject.FindObject(VlcObjectType.VOut, VlcObjectSearchMode.Child);
             vo.SetStringValue("aspect-ratio", "");
 			//_v.Input.VideoAspectRatio = "";
 		}
