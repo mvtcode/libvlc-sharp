@@ -34,41 +34,6 @@ using System.Runtime.InteropServices;
 
 namespace Atx.LibVLC
 {
-    public class VlcLogMessageHandle : SafeHandle
-    {
-        public VlcLogMessageHandle() : base(IntPtr.Zero, true)
-        {
-            handle = Marshal.AllocCoTaskMem(Marshal.SizeOf(typeof(libvlc_log_message_t)));
-        }
-
-        public override bool IsInvalid
-        {
-            get { return handle == IntPtr.Zero; }
-        }
-
-        protected override bool ReleaseHandle()
-        {
-            if(!IsInvalid)
-            {
-                Marshal.FreeCoTaskMem(handle);
-                handle = IntPtr.Zero;
-                return true;
-            }
-            return false;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            ReleaseHandle();
-            base.Dispose(disposing);
-        }
-
-        public static implicit operator IntPtr(VlcLogMessageHandle vlmh)
-        {
-            return vlmh.handle;
-        }
-    }
-
     public class VlcLogMessage
     {
         private libvlc_log_message_t _msg;
@@ -77,9 +42,9 @@ namespace Atx.LibVLC
         private string header;
         private string message;
 
-        public VlcLogMessage(VlcLogMessageHandle handle)
+        internal VlcLogMessage(libvlc_log_message_t msg)
         {
-            _msg = (libvlc_log_message_t)Marshal.PtrToStructure(handle, typeof(libvlc_log_message_t));
+            _msg = msg;
         }
 
         public string Type
@@ -146,17 +111,5 @@ namespace Atx.LibVLC
         {
             get { return _msg.severity; }
         }
-    }
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct libvlc_log_message_t
-    {
-        public uint message_size;
-        public int severity;
-        public IntPtr type;
-        public IntPtr name;
-        public IntPtr header;
-        public IntPtr message;
     }
 }

@@ -166,4 +166,15 @@ namespace Atx.LibVLC
         public IntPtr p_values;
         public IntPtr pi_types;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    internal struct libvlc_log_message_t
+    {
+        public uint message_size;
+        public int severity;
+        public IntPtr type;
+        public IntPtr name;
+        public IntPtr header;
+        public IntPtr message;
+    }
 }

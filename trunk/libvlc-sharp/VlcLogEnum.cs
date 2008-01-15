@@ -37,7 +37,6 @@ namespace Atx.LibVLC
 {
     public class VlcLogEnumHandle : SafeHandle
     {
-        
         public VlcLogEnumHandle() : base(IntPtr.Zero, true)
         { }
 
@@ -81,7 +80,7 @@ namespace Atx.LibVLC
     {
         private VlcLogHandle log;
         private VlcLogEnumHandle iter;
-        private VlcLogMessageHandle last_ptr;
+        private libvlc_log_message_t last_ptr;
         private VlcException _excp = new VlcException();
 
         public VlcLogEnum(VlcLogHandle log)
@@ -114,26 +113,19 @@ namespace Atx.LibVLC
 
         public virtual bool MoveNext()
         {
-            if(has_next())
+            bool ret = has_next();
+            if(ret)
             {
-                int size = Marshal.SizeOf(typeof(libvlc_log_message_t));
-
-                //libvlc wants us to allocate the buffer and set the size
-                //so it knows that the structs match in layout and size on
-                //runtime arch
-                libvlc_log_message_t tmp = new libvlc_log_message_t();
-                tmp.message_size = (uint)size;
-
-                //take our existing structure and put it in the unmanaged memory
-                //also let it deallocate the original
-                VlcLogMessageHandle handle = new VlcLogMessageHandle();
-                Marshal.StructureToPtr(tmp, handle, true);
-
-                last_ptr = libvlc_log_iterator_next(iter, handle, _excp);
+                libvlc_log_message_t msg = new libvlc_log_message_t();
+                msg.message_size = (uint)Marshal.SizeOf(typeof(libvlc_log_message_t));
+                
+                IntPtr p = libvlc_log_iterator_next(iter, ref msg, _excp);
                 VlcException.HandleVlcException(ref _excp);
-                return true;
+
+                last_ptr = (libvlc_log_message_t)Marshal.PtrToStructure(p, typeof(libvlc_log_message_t));
             }
-            return false;
+
+            return ret;
         }
 
         public virtual void Reset()
@@ -147,12 +139,7 @@ namespace Atx.LibVLC
         {
             get
             {
-                if(!last_ptr.IsInvalid)
-                {
-                    VlcLogMessage message = new VlcLogMessage(last_ptr);
-                    return message;
-                }
-                return null;
+               return (last_ptr.message_size != 0) ? new VlcLogMessage(last_ptr) : null;
             }
         }
 
@@ -167,7 +154,7 @@ namespace Atx.LibVLC
         private static extern int libvlc_log_iterator_has_next(VlcLogEnumHandle iter, VlcExceptionHandle _excp);
 
         [DllImport("libvlc")]
-        private static extern VlcLogMessageHandle libvlc_log_iterator_next(VlcLogEnumHandle iter, VlcLogMessageHandle buffer, VlcExceptionHandle _excp);
+        private static extern IntPtr libvlc_log_iterator_next(VlcLogEnumHandle iter, ref libvlc_log_message_t buffer, VlcExceptionHandle _excp);
         #endregion
     }
 }
