@@ -49,6 +49,7 @@
     <Compile Include="VlcLogEnum.cs" />
     <Compile Include="VlcLogMessage.cs" />
     <Compile Include="VlcObject.cs" />
+    <Compile Include="VlcPlaylist.cs" />
     <Compile Include="VlcTypes.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSHARP.Targets" />

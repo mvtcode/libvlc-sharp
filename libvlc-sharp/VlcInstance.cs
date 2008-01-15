@@ -73,12 +73,15 @@ namespace Atx.LibVLC
     {
         private bool _disposed = false;
         private VlcException _excp = new VlcException();
-        private VlcInstanceHandle _instance;
 
-        public VlcInstance(VlcConfig cfg)
+        public VlcInstance(VlcConfig vlcConfig)
         {
-            _instance = libvlc_new(cfg.Arguments.Length, cfg.Arguments, _excp);
+            VlcConfig = vlcConfig;
+
+            VlcInstanceHandle = libvlc_new(VlcConfig.Arguments.Length, VlcConfig.Arguments, _excp);
             VlcException.HandleVlcException(ref _excp);
+            
+            VlcPlaylist = new VlcPlaylist(this);
         }
 
         public void Dispose()
@@ -96,10 +99,10 @@ namespace Atx.LibVLC
                 if (_log != null )
                     _log.Dispose();
 
-                if (Object != null)
-                    Object.Dispose();
+                if (VlcObject != null)
+                    VlcObject.Dispose();
 
-                _instance.Dispose();
+                VlcInstanceHandle.Dispose();
 
                 if ( _excp != null )
                     _excp.Dispose();
@@ -111,6 +114,20 @@ namespace Atx.LibVLC
             Dispose(false);
         }
 
+        private VlcInstanceHandle _vlcInstanceHandle;
+        internal VlcInstanceHandle VlcInstanceHandle
+        {
+            get
+            {
+                return _vlcInstanceHandle;
+            }
+
+            set
+            {
+                _vlcInstanceHandle = value;
+            }
+        }
+        
         private IntPtr _owner;
         public IntPtr Owner
         {
@@ -126,49 +143,77 @@ namespace Atx.LibVLC
             }
         }
 
+        private VlcConfig _vlcConfig;
+        public VlcConfig VlcConfig
+        {
+            get
+            {
+                return _vlcConfig;
+            }
+
+            private set
+            {
+                _vlcConfig = value;
+            }
+        }
+
         private VlcLog _log;
-        public VlcLog Log
+        public VlcLog VlcLog
         {
             get
             {
                 if(_log == null)
-                    _log = new VlcLog(_instance);
+                    _log = new VlcLog(VlcInstanceHandle);
 
                 return _log;
             }
         }
 
-        public Int32 ID
+        public Int32 VlcObjectID
         {
             get
             {
-                Int32 id = libvlc_get_vlc_id(_instance);
+                Int32 id = libvlc_get_vlc_id(VlcInstanceHandle);
                 return id;
             }
         }
 
         private VlcObject _object = null;
-        public VlcObject Object
+        public VlcObject VlcObject
         {
             get
             {
                 if (_object == null)
-                    _object = new VlcObject(ID);
+                    _object = new VlcObject(VlcObjectID);
 
                 return _object;
             }
         }
 
-        public VlcInput Input
+        public VlcInput VlcInput
         {
             get
             {
-                VlcInput input = new VlcInput(_instance);
+                VlcInput input = new VlcInput(VlcInstanceHandle);
                 return input;
             }
         }
 
-        public static string Version
+        private VlcPlaylist _vlcPlaylist;
+        public VlcPlaylist VlcPlaylist
+        {
+            get
+            {
+                return _vlcPlaylist;
+            }
+
+            private set
+            {
+                _vlcPlaylist = value;
+            }
+        }
+
+        public static string VlcLibraryVersion
         {
             get
             {
@@ -181,14 +226,14 @@ namespace Atx.LibVLC
         {
             get
             {
-                int ret = libvlc_audio_get_volume(_instance, _excp);
+                int ret = libvlc_audio_get_volume(VlcInstanceHandle, _excp);
                 VlcException.HandleVlcException(ref _excp);
                 return ret;
             }
 
             set
             {
-                libvlc_audio_set_volume(_instance, value, _excp);
+                libvlc_audio_set_volume(VlcInstanceHandle, value, _excp);
                 VlcException.HandleVlcException(ref _excp);
             }
         }
@@ -197,119 +242,36 @@ namespace Atx.LibVLC
         {
             get
             {
-                bool b = libvlc_audio_get_mute(_instance, _excp);
+                bool b = libvlc_audio_get_mute(VlcInstanceHandle, _excp);
                 VlcException.HandleVlcException(ref _excp);
                 return b;
             }
 
             set
             {
-                libvlc_audio_set_mute(_instance, value, _excp);
+                libvlc_audio_set_mute(VlcInstanceHandle, value, _excp);
                 VlcException.HandleVlcException(ref _excp);
             }
-        }
-
-        public bool IsPlaying
-        {
-            get
-            {
-                int ret = libvlc_playlist_isplaying(_instance, _excp);
-                VlcException.HandleVlcException(ref _excp);
-                return ret == 1 ? true : false;
-            }
-        }
-
-        public int Count
-        {
-            get
-            {
-                int ret = libvlc_playlist_items_count(_instance, _excp);
-                VlcException.HandleVlcException(ref _excp);
-                return ret;
-            }
-        }
-
-        public void Play()
-        {
-            Play(-1);
-        }
-
-        public void Play(Int32 item)
-        {
-            SetOwner(Owner);
-            libvlc_playlist_play(_instance, item, 0, null, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public void Pause()
-        {
-            libvlc_playlist_pause(_instance, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public void Stop()
-        {
-            libvlc_playlist_stop(_instance, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public void Prev()
-        {
-            libvlc_playlist_prev(_instance, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public void Next()
-        {
-            libvlc_playlist_next(_instance, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public void PlaylistClear()
-        {
-            libvlc_playlist_clear(_instance, _excp);
-            VlcException.HandleVlcException(ref _excp);
-        }
-
-        public int PlaylistAdd(string uri)
-        {
-            int ret = libvlc_playlist_add(_instance, uri, null, _excp);
-            VlcException.HandleVlcException(ref _excp);
-            return ret;
-        }
-
-        public int PlaylistAdd(string uri, string name)
-        {
-            int ret = libvlc_playlist_add(_instance, uri, name, _excp);
-            VlcException.HandleVlcException(ref _excp);
-            return ret;
-        }
-
-        public int PlaylistDeleteItem(int item)
-        {
-            int ret = libvlc_playlist_delete_item(_instance, item, _excp);
-            VlcException.HandleVlcException(ref _excp);
-            return ret;
         }
 
         public void ToggleMute()
         {
-            libvlc_audio_toggle_mute(_instance, _excp);
+            libvlc_audio_toggle_mute(VlcInstanceHandle, _excp);
             VlcException.HandleVlcException(ref _excp);
         }
 
-        protected void SetOwner(IntPtr hwnd)
+        internal void SetOwner(IntPtr hwnd)
         {
-            if (!_instance.IsInvalid)
+            if (!VlcInstanceHandle.IsInvalid)
             {
-                if (!Input.IsInvalid)
+                if (!VlcInput.IsInvalid)
                 {
                     if (Owner != hwnd)
-                        Input.Owner = hwnd;
+                        VlcInput.Owner = hwnd;
                 }
                 else
                 {
-                    libvlc_video_set_parent(_instance, hwnd, _excp);
+                    libvlc_video_set_parent(VlcInstanceHandle, hwnd, _excp);
                     VlcException.HandleVlcException(ref _excp);
                 }
             }
@@ -321,36 +283,6 @@ namespace Atx.LibVLC
 
         [DllImport("libvlc")]
         private static extern Int32 libvlc_get_vlc_id(VlcInstanceHandle p_instance);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_play(VlcInstanceHandle p_instance, Int32 i, Int32 i2, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.LPStr)] string[] a, VlcExceptionHandle _excp);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_pause(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern int libvlc_playlist_isplaying(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern int libvlc_playlist_items_count(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_stop(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_next(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_prev(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern void libvlc_playlist_clear(VlcInstanceHandle engine, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern int libvlc_playlist_add(VlcInstanceHandle engine, string uri, string name, VlcExceptionHandle ex);
-
-        [DllImport ("libvlc")]
-        private static extern int libvlc_playlist_delete_item(VlcInstanceHandle engine, int item, VlcExceptionHandle ex);
 
         [DllImport ("libvlc")]
         private static extern int libvlc_audio_get_volume(VlcInstanceHandle engine, VlcExceptionHandle exception);

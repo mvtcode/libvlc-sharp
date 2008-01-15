@@ -11,48 +11,49 @@ public class Foo
             return;
         }
 
-        VlcConfig cfg = new VlcConfig();
-        cfg.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
+        VlcConfig vlcConfig = new VlcConfig();
+        vlcConfig.PluginPath = "C:\\Program Files\\VideoLAN\\VLC\\Plugins";
 
-        VlcInstance e = new VlcInstance(cfg);
+        VlcInstance e = new VlcInstance(vlcConfig);
+
         Console.WriteLine("Engine Init");
         Console.WriteLine("-------------------");
-        foreach (VlcLogMessage vlm in e.Log)
+        foreach (VlcLogMessage vlm in e.VlcLog)
             Console.WriteLine("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message);
 
-        e.Log.Clear();
+        e.VlcLog.Clear();
 
-        int id = e.PlaylistAdd(args[0], "");
+        int id = e.VlcPlaylist.Add(args[0], "");
 
         Console.WriteLine("-------------------");
         Console.WriteLine("Added {0}", args[0]);
         Console.WriteLine("-------------------");
 
-        foreach (VlcLogMessage vlm in e.Log)
+        foreach (VlcLogMessage vlm in e.VlcLog)
             Console.WriteLine("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message);
 
-        e.Log.Clear();
-        e.Play(id);
+        e.VlcLog.Clear();
+        e.VlcPlaylist.Play(id);
 
         Console.WriteLine("-------------------");
         Console.WriteLine("Playing {0}", id);
         Console.WriteLine("-------------------");
 
-        foreach (VlcLogMessage vlm in e.Log)
+        foreach (VlcLogMessage vlm in e.VlcLog)
             Console.WriteLine("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message);
 
-        e.Log.Clear();
+        e.VlcLog.Clear();
 
-        while (e.IsPlaying)
+        while (e.VlcPlaylist.IsPlaying)
         {
-            foreach (VlcLogMessage vlm in e.Log)
+            foreach (VlcLogMessage vlm in e.VlcLog)
                 Console.WriteLine("{0} {1} {2} {3} {4}", vlm.Severity, vlm.Type, vlm.Name, vlm.Header, vlm.Message);
 
-            e.Log.Clear();
+            e.VlcLog.Clear();
 
             System.Threading.Thread.Sleep(5000);
-            if ( !e.Input.IsInvalid )
-                Console.Write("{0} / {1}\r", e.Input.Time / 1000, e.Input.Length / 1000);
+            if ( !e.VlcInput.IsInvalid )
+                Console.Write("{0} / {1}\r", e.VlcInput.Time / 1000, e.VlcInput.Length / 1000);
         }
         Console.ReadLine();
     }
