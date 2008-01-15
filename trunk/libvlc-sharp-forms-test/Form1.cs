@@ -116,7 +116,7 @@ namespace test_project
 			_v = new VlcInstance(vlcConfig);
 
 			_v.Owner = c.Handle;               
-            _v.VlcPlaylist.Add("D:\\SME\\Video\\CenterStage.wmv");
+            _v.VlcPlaylist.Add("");
             _v.VlcPlaylist.Play();
 
             //_logForm = new LogForm(_v);
