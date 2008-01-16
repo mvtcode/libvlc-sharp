@@ -77,6 +77,19 @@ namespace Atx.LibVLC
             }
         }
 
+        public int CurrentItem
+        {
+            get
+            {
+                return VLC_PlaylistIndex(VlcInstance.VlcObjectID);
+            }
+
+            set
+            {
+                Play(value);
+            }
+        }
+
         public void Play()
         {
             Play(-1);
@@ -169,6 +182,13 @@ namespace Atx.LibVLC
 
         [DllImport("libvlc")]
         private static extern int libvlc_playlist_delete_item(VlcInstanceHandle engine, int item, VlcExceptionHandle ex);
+
+        [DllImport("libvlc")]
+        private static extern int VLC_PlaylistIndex(int i_object);
+
+        [DllImport("libvlc")]
+        private static extern int VLC_PlaylistNumberOfItems(int i_object);
+
         #endregion
     }
 }
