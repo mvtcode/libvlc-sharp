@@ -336,11 +336,11 @@ namespace Atx.LibVLC
         [DllImport("libvlc")]
         private static extern void __config_PutInt(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, Int32 value);
         
-        [DllImport("libvlc")]
+        [DllImport("libvlc")][return:MarshalAs(UnmanagedType.R4)]
         private static extern float __config_GetFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
 
         [DllImport("libvlc")]
-        private static extern void __config_PutFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, float value);
+        private static extern void __config_PutFloat(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name, [MarshalAs(UnmanagedType.R4)] float value);
         
         [DllImport("libvlc")]
         private static extern String __config_GetPsz(VlcObjectHandle p_object, [MarshalAs(UnmanagedType.LPStr)] String name);
