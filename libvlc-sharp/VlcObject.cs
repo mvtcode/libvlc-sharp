@@ -259,6 +259,27 @@ namespace Atx.LibVLC
             __var_Set(_vlcObject, name, ref v);
         }
 
+        public Boolean GetBoolValue(string name)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            vlc_value_t v = new vlc_value_t();
+            __var_Get(_vlcObject, name, ref v);
+
+            return v.b_bool != 0;
+        }
+
+        public void SetBoolValue(String name, Boolean val)
+        {
+            if (_vlcObject.IsInvalid)
+                throw new ApplicationException("VLC object is NULL");
+
+            vlc_value_t v = new vlc_value_t();
+            v.b_bool = val ? 1 : 0;
+            __var_Set(_vlcObject, name, ref v);
+        }
+
         public String GetConfigStringValue(String name)
         {
             if (_vlcObject.IsInvalid)
